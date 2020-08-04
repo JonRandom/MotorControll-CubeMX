@@ -158,6 +158,11 @@ int main(void)
 #define WAIT_US		3000
 
 
+//Github sync test //temp
+
+#define TESTTEST 12
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
