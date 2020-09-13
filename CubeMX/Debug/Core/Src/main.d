@@ -1,87 +1,86 @@
-Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
- ../Core/Inc/stm32f1xx_hal_conf.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h \
- ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h \
- ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h \
- ../Drivers/CMSIS/Include/core_cm3.h \
- ../Drivers/CMSIS/Include/cmsis_version.h \
- ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Drivers/CMSIS/Include/cmsis_gcc.h \
- ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_exti.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma_ex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_can.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
+Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/SystemConfig.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_lib.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_map.h \
+ ../Core/Inc/stm32f10x_conf.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_type.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_type.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/cortexm3_macro.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_adc.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_bkp.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_can.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_dma.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_exti.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_flash.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_gpio.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_i2c.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_iwdg.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_nvic.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_pwr.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_rcc.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_rtc.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_spi.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_systick.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_tim1.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_tim.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_usart.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_wwdg.h \
+ ../Core/STM32F10x_StdPeriph_Driver/inc/cortexm3_macro.h \
+ ../Core/Inc/motorcontrolsettings.h ../Core/Inc/definitions.h
 
-../Core/Inc/main.h:
+../Core/Inc/SystemConfig.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_lib.h:
 
-../Core/Inc/stm32f1xx_hal_conf.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_map.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h:
+../Core/Inc/stm32f10x_conf.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_type.h:
 
-../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_type.h:
 
-../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/cortexm3_macro.h:
 
-../Drivers/CMSIS/Include/core_cm3.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_adc.h:
 
-../Drivers/CMSIS/Include/cmsis_version.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_bkp.h:
 
-../Drivers/CMSIS/Include/cmsis_compiler.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_can.h:
 
-../Drivers/CMSIS/Include/cmsis_gcc.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_dma.h:
 
-../Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_exti.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_flash.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_gpio.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_i2c.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_exti.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_iwdg.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_nvic.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma_ex.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_pwr.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_can.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_rcc.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_rtc.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_spi.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_systick.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_tim1.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_tim.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_usart.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/stm32f10x_wwdg.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h:
+../Core/STM32F10x_StdPeriph_Driver/inc/cortexm3_macro.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h:
+../Core/Inc/motorcontrolsettings.h:
 
-../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
+../Core/Inc/definitions.h:

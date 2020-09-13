@@ -9,8 +9,9 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
--include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
+-include Core/STM32F10x_StdPeriph_Driver/src/subdir.mk
+-include Core/Inc/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -40,8 +41,8 @@ CubeMX.bin \
 all: CubeMX.elf secondary-outputs
 
 # Tool invocations
-CubeMX.elf: $(OBJS) $(USER_OBJS) C:\Users\Luis\ Kleinwort\STM32CubeIDE\workspace_1.3.0\CubeMX\STM32F103C8TX_FLASH.ld
-	arm-none-eabi-gcc -o "CubeMX.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Luis Kleinwort\STM32CubeIDE\workspace_1.3.0\CubeMX\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CubeMX.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+CubeMX.elf: $(OBJS) $(USER_OBJS) C:\Jonathan-WSeminar\MotorControll-CubeMX\CubeMX\STM32F103C8TX_FLASH.ld
+	arm-none-eabi-gcc -o "CubeMX.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Jonathan-WSeminar\MotorControll-CubeMX\CubeMX\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CubeMX.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

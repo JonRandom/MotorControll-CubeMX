@@ -1,0 +1,1 @@
+-c --device DARMSTM -g -O0 --apcs=interwork -I.\Include -I.\library\inc -I. -I "C:\Program Files\Keil\ARM\INC\ST\STM32F10x" -o ".\Obj\systemconfig.o" --omf_browse ".\Obj\systemconfig.crf" --depend ".\Obj\systemconfig.d" "Source\SystemConfig.c"
