@@ -120,7 +120,7 @@ int main(void)
   // port A setup
   GPIOA->CRH = 0x34443BBB; // 15,11 as PP, 8,9,10 AF PP, rest inputs
   // old: GPIOA->CRL = 0x00444440; // a7 and a6 and a0 ain
-  GPIOA->CRL = 0xB0444440; // a7 is AF PP,  and a6 and a0 are ain
+  GPIOA->CRL = 0xB0444000; // a7 is AF PP,  and a1,a2 and a0 are ain
 
   // port B setup
   // old: GPIOB->CRH = 0xBBB43444; // 15,14,13 AF PP, 11 PP, rest inputs
