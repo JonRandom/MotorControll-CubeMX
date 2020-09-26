@@ -16,6 +16,9 @@
 #define EXT
 
 /* Includes ------------------------------------------------------------------*/
+
+#include "stm32f10x_conf.h"	// included by sk
+
 #include "stm32f10x_lib.h"
 
 /* Private typedef -----------------------------------------------------------*/

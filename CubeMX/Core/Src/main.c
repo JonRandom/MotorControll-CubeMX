@@ -88,6 +88,7 @@ signed long intterm;
 
 // wait for power supply to stabilize
 long0=0;
+
 while(long0<1000000) long0++;
   
 // RCC system reset(for debug purpose) 
@@ -95,6 +96,8 @@ while(long0<1000000) long0++;
   
 // sk FLASH_SetLatency(FLASH_Latency_2);        // Flash: 2 wait states (HCLK > 48MHz)
 // sk FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);  // Enable Prefetch Buffer
+
+debug(); // initializes all periphery pointers based on RCC_BASE
 
 RCC->CFGR = 0x00100000; // all dividers to minimum, PLL to *6, HSI selected
 

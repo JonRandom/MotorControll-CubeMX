@@ -1,5 +1,5 @@
 main.c:81:6:main	32	static
-main.c:374:16:adcread	24	static
-main.c:403:6:PWMISR	16	static
-main.c:606:7:motorstartinit	4	static
-main.c:676:6:assert_failed	16	static
+main.c:377:16:adcread	24	static
+main.c:406:6:PWMISR	16	static
+main.c:609:7:motorstartinit	4	static
+main.c:679:6:assert_failed	16	static
