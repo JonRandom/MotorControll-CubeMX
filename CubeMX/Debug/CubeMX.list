@@ -1358,461 +1358,465 @@ void Reset_Handler(void)
  800090c:	20000128 	.word	0x20000128
 
 08000910 <main>:
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
- int main(void)
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
+int main(void)
 {
  8000910:	b580      	push	{r7, lr}
  8000912:	b086      	sub	sp, #24
  8000914:	af00      	add	r7, sp, #0
-signed long slong0; 
-signed long propterm;
-signed long intterm;
+  signed long slong0;
+  signed long propterm;
+  signed long intterm;
 
-// wait for power supply to stabilize
-long0=0;
+  // wait for power supply to stabilize
+  long0=0;
  8000916:	2300      	movs	r3, #0
  8000918:	617b      	str	r3, [r7, #20]
 
-while(long0<1000000) long0++;
+  while(long0<1000000) long0++;
  800091a:	e002      	b.n	8000922 <main+0x12>
  800091c:	697b      	ldr	r3, [r7, #20]
  800091e:	3301      	adds	r3, #1
  8000920:	617b      	str	r3, [r7, #20]
  8000922:	697b      	ldr	r3, [r7, #20]
- 8000924:	4aa2      	ldr	r2, [pc, #648]	; (8000bb0 <main+0x2a0>)
+ 8000924:	4aa1      	ldr	r2, [pc, #644]	; (8000bac <main+0x29c>)
  8000926:	4293      	cmp	r3, r2
  8000928:	d9f8      	bls.n	800091c <main+0xc>
-// sk RCC_DeInit();
-  
-// sk FLASH_SetLatency(FLASH_Latency_2);        // Flash: 2 wait states (HCLK > 48MHz)
-// sk FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);  // Enable Prefetch Buffer
+  // sk RCC_DeInit();
 
-debug(); // initializes all periphery pointers based on RCC_BASE
+  // sk FLASH_SetLatency(FLASH_Latency_2);        // Flash: 2 wait states (HCLK > 48MHz)
+  // sk FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);  // Enable Prefetch Buffer
+
+  debug(); // initializes all periphery pointers based on RCC_BASE
  800092a:	f7ff fc35 	bl	8000198 <debug>
 
-RCC->CFGR = 0x00100000; // all dividers to minimum, PLL to *6, HSI selected
- 800092e:	4ba1      	ldr	r3, [pc, #644]	; (8000bb4 <main+0x2a4>)
+  RCC->CFGR = 0x00100000; // all dividers to minimum, PLL to *6, HSI selected
+ 800092e:	4ba0      	ldr	r3, [pc, #640]	; (8000bb0 <main+0x2a0>)
  8000930:	681b      	ldr	r3, [r3, #0]
  8000932:	f44f 1280 	mov.w	r2, #1048576	; 0x100000
  8000936:	605a      	str	r2, [r3, #4]
 
-long0 =1;
+  long0 =1;
  8000938:	2301      	movs	r3, #1
  800093a:	617b      	str	r3, [r7, #20]
 
-RCC_PLLCmd(ENABLE);       /* Enable PLL */ 
+  RCC_PLLCmd(ENABLE);       /* Enable PLL */
  800093c:	2001      	movs	r0, #1
  800093e:	f7ff fe85 	bl	800064c <RCC_PLLCmd>
-while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);        /* Wait till PLL is ready */
+  while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET);        /* Wait till PLL is ready */
  8000942:	bf00      	nop
  8000944:	2039      	movs	r0, #57	; 0x39
  8000946:	f7ff ff17 	bl	8000778 <RCC_GetFlagStatus>
  800094a:	4603      	mov	r3, r0
  800094c:	2b00      	cmp	r3, #0
  800094e:	d0f9      	beq.n	8000944 <main+0x34>
-RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);        /* Select PLL as system clock source */
+  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);        /* Select PLL as system clock source */
  8000950:	2002      	movs	r0, #2
  8000952:	f7ff fe97 	bl	8000684 <RCC_SYSCLKConfig>
-while(RCC_GetSYSCLKSource() != 0x08);        /* Wait till PLL is used as system clock source */
+  while(RCC_GetSYSCLKSource() != 0x08);        /* Wait till PLL is used as system clock source */
  8000956:	bf00      	nop
  8000958:	f7ff fec0 	bl	80006dc <RCC_GetSYSCLKSource>
  800095c:	4603      	mov	r3, r0
  800095e:	2b08      	cmp	r3, #8
  8000960:	d1fa      	bne.n	8000958 <main+0x48>
 
-RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,  ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,  ENABLE);
  8000962:	2101      	movs	r1, #1
  8000964:	f44f 7000 	mov.w	r0, #512	; 0x200
  8000968:	f7ff fec8 	bl	80006fc <RCC_APB2PeriphClockCmd>
-RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
  800096c:	2101      	movs	r1, #1
  800096e:	f44f 6000 	mov.w	r0, #2048	; 0x800
  8000972:	f7ff fec3 	bl	80006fc <RCC_APB2PeriphClockCmd>
-RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
  8000976:	2101      	movs	r1, #1
  8000978:	2004      	movs	r0, #4
  800097a:	f7ff febf 	bl	80006fc <RCC_APB2PeriphClockCmd>
-RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
  800097e:	2101      	movs	r1, #1
  8000980:	2008      	movs	r0, #8
  8000982:	f7ff febb 	bl	80006fc <RCC_APB2PeriphClockCmd>
-RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
  8000986:	2101      	movs	r1, #1
  8000988:	2001      	movs	r0, #1
  800098a:	f7ff feb7 	bl	80006fc <RCC_APB2PeriphClockCmd>
 
-AFIO->MAPR= b25;  // free up PA15
- 800098e:	4b8a      	ldr	r3, [pc, #552]	; (8000bb8 <main+0x2a8>)
+  // old: AFIO->MAPR= b25;  // free up PA15
+  AFIO->MAPR= b25 + b6;  // free up PA15 and TIM1 = partial remap
+ 800098e:	4b89      	ldr	r3, [pc, #548]	; (8000bb4 <main+0x2a4>)
  8000990:	681b      	ldr	r3, [r3, #0]
- 8000992:	f04f 7200 	mov.w	r2, #33554432	; 0x2000000
- 8000996:	605a      	str	r2, [r3, #4]
+ 8000992:	4a89      	ldr	r2, [pc, #548]	; (8000bb8 <main+0x2a8>)
+ 8000994:	605a      	str	r2, [r3, #4]
 
-// port A setup
-GPIOA->CRH = 0x34443BBB; // 15,11 as PP, 8,9,10 AF PP, rest inputs
- 8000998:	4b88      	ldr	r3, [pc, #544]	; (8000bbc <main+0x2ac>)
- 800099a:	681b      	ldr	r3, [r3, #0]
- 800099c:	4a88      	ldr	r2, [pc, #544]	; (8000bc0 <main+0x2b0>)
- 800099e:	605a      	str	r2, [r3, #4]
-GPIOA->CRL = 0x00444440; // a7 and a6 and a0 ain
- 80009a0:	4b86      	ldr	r3, [pc, #536]	; (8000bbc <main+0x2ac>)
- 80009a2:	681b      	ldr	r3, [r3, #0]
- 80009a4:	4a87      	ldr	r2, [pc, #540]	; (8000bc4 <main+0x2b4>)
- 80009a6:	601a      	str	r2, [r3, #0]
+  // port A setup
+  GPIOA->CRH = 0x34443BBB; // 15,11 as PP, 8,9,10 AF PP, rest inputs
+ 8000996:	4b89      	ldr	r3, [pc, #548]	; (8000bbc <main+0x2ac>)
+ 8000998:	681b      	ldr	r3, [r3, #0]
+ 800099a:	4a89      	ldr	r2, [pc, #548]	; (8000bc0 <main+0x2b0>)
+ 800099c:	605a      	str	r2, [r3, #4]
+  // old: GPIOA->CRL = 0x00444440; // a7 and a6 and a0 ain
+  GPIOA->CRL = 0xB0444440; // a7 is AF PP,  and a6 and a0 are ain
+ 800099e:	4b87      	ldr	r3, [pc, #540]	; (8000bbc <main+0x2ac>)
+ 80009a0:	681b      	ldr	r3, [r3, #0]
+ 80009a2:	4a88      	ldr	r2, [pc, #544]	; (8000bc4 <main+0x2b4>)
+ 80009a4:	601a      	str	r2, [r3, #0]
 
-// port B setup
-GPIOB->CRH = 0xBBB43444; // 15,14,13 AF PP, 11 PP, rest inputs
- 80009a8:	4b87      	ldr	r3, [pc, #540]	; (8000bc8 <main+0x2b8>)
- 80009aa:	681b      	ldr	r3, [r3, #0]
- 80009ac:	4a87      	ldr	r2, [pc, #540]	; (8000bcc <main+0x2bc>)
- 80009ae:	605a      	str	r2, [r3, #4]
-GPIOB->CRL = 0x43444440; // b0 ain, b6 GPIO PP
- 80009b0:	4b85      	ldr	r3, [pc, #532]	; (8000bc8 <main+0x2b8>)
- 80009b2:	681b      	ldr	r3, [r3, #0]
- 80009b4:	4a86      	ldr	r2, [pc, #536]	; (8000bd0 <main+0x2c0>)
- 80009b6:	601a      	str	r2, [r3, #0]
-GPIOB->ODR &= ~b11;  //clear pb11 to select bemf off time sampling
- 80009b8:	4b83      	ldr	r3, [pc, #524]	; (8000bc8 <main+0x2b8>)
- 80009ba:	681b      	ldr	r3, [r3, #0]
- 80009bc:	68da      	ldr	r2, [r3, #12]
- 80009be:	4b82      	ldr	r3, [pc, #520]	; (8000bc8 <main+0x2b8>)
- 80009c0:	681b      	ldr	r3, [r3, #0]
- 80009c2:	f422 6200 	bic.w	r2, r2, #2048	; 0x800
- 80009c6:	60da      	str	r2, [r3, #12]
-  
-// tim1 setup
-TIM1->SMCR = b15; // make ETR input active low
- 80009c8:	4b82      	ldr	r3, [pc, #520]	; (8000bd4 <main+0x2c4>)
- 80009ca:	681b      	ldr	r3, [r3, #0]
- 80009cc:	f44f 4200 	mov.w	r2, #32768	; 0x8000
- 80009d0:	811a      	strh	r2, [r3, #8]
-TIM1->CR2= b9+b11+b13;
- 80009d2:	4b80      	ldr	r3, [pc, #512]	; (8000bd4 <main+0x2c4>)
- 80009d4:	681b      	ldr	r3, [r3, #0]
- 80009d6:	f44f 5228 	mov.w	r2, #10752	; 0x2a00
- 80009da:	809a      	strh	r2, [r3, #4]
-TIM1->CCR1= 0;
- 80009dc:	4b7d      	ldr	r3, [pc, #500]	; (8000bd4 <main+0x2c4>)
- 80009de:	681b      	ldr	r3, [r3, #0]
- 80009e0:	2200      	movs	r2, #0
- 80009e2:	869a      	strh	r2, [r3, #52]	; 0x34
-TIM1->CCR2= 0;
- 80009e4:	4b7b      	ldr	r3, [pc, #492]	; (8000bd4 <main+0x2c4>)
- 80009e6:	681b      	ldr	r3, [r3, #0]
- 80009e8:	2200      	movs	r2, #0
- 80009ea:	871a      	strh	r2, [r3, #56]	; 0x38
-TIM1->CCR3= 0;
- 80009ec:	4b79      	ldr	r3, [pc, #484]	; (8000bd4 <main+0x2c4>)
- 80009ee:	681b      	ldr	r3, [r3, #0]
- 80009f0:	2200      	movs	r2, #0
- 80009f2:	879a      	strh	r2, [r3, #60]	; 0x3c
-TIM1->CCR4= 1100;
- 80009f4:	4b77      	ldr	r3, [pc, #476]	; (8000bd4 <main+0x2c4>)
- 80009f6:	681b      	ldr	r3, [r3, #0]
- 80009f8:	f240 424c 	movw	r2, #1100	; 0x44c
- 80009fc:	f8a3 2040 	strh.w	r2, [r3, #64]	; 0x40
-TIM1->ARR=1200;
- 8000a00:	4b74      	ldr	r3, [pc, #464]	; (8000bd4 <main+0x2c4>)
- 8000a02:	681b      	ldr	r3, [r3, #0]
- 8000a04:	f44f 6296 	mov.w	r2, #1200	; 0x4b0
- 8000a08:	859a      	strh	r2, [r3, #44]	; 0x2c
-TIM1->CR1=0x0001;
- 8000a0a:	4b72      	ldr	r3, [pc, #456]	; (8000bd4 <main+0x2c4>)
- 8000a0c:	681b      	ldr	r3, [r3, #0]
- 8000a0e:	2201      	movs	r2, #1
- 8000a10:	801a      	strh	r2, [r3, #0]
-// b12 to enable brk input
-TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
- 8000a12:	4b70      	ldr	r3, [pc, #448]	; (8000bd4 <main+0x2c4>)
- 8000a14:	681b      	ldr	r3, [r3, #0]
- 8000a16:	f649 0210 	movw	r2, #38928	; 0x9810
- 8000a1a:	f8a3 2044 	strh.w	r2, [r3, #68]	; 0x44
-// note: b15 b7 and b7 are to enable   based current limit
-TIM1->CCMR1= 0x6868 +b15 + b7; 
- 8000a1e:	4b6d      	ldr	r3, [pc, #436]	; (8000bd4 <main+0x2c4>)
- 8000a20:	681b      	ldr	r3, [r3, #0]
- 8000a22:	f64e 02e8 	movw	r2, #59624	; 0xe8e8
- 8000a26:	831a      	strh	r2, [r3, #24]
-TIM1->CCMR2= 0x6868 +b7; 
- 8000a28:	4b6a      	ldr	r3, [pc, #424]	; (8000bd4 <main+0x2c4>)
- 8000a2a:	681b      	ldr	r3, [r3, #0]
- 8000a2c:	f646 02e8 	movw	r2, #26856	; 0x68e8
- 8000a30:	839a      	strh	r2, [r3, #28]
-// b4 for cc4 and b7 for brk interrupt
-TIM1->DIER = b4+b7;  // enable cc4 interrupt
- 8000a32:	4b68      	ldr	r3, [pc, #416]	; (8000bd4 <main+0x2c4>)
- 8000a34:	681b      	ldr	r3, [r3, #0]
- 8000a36:	2290      	movs	r2, #144	; 0x90
- 8000a38:	819a      	strh	r2, [r3, #12]
-// sk RCC->APB1ENR |= b29; // enable DAC peripheral clock
+  // port B setup
+  // old: GPIOB->CRH = 0xBBB43444; // 15,14,13 AF PP, 11 PP, rest inputs
+  GPIOB->CRH = 0x44443444; // 15,14,13 are now floating inputs, 11 PP, rest inputs
+ 80009a6:	4b88      	ldr	r3, [pc, #544]	; (8000bc8 <main+0x2b8>)
+ 80009a8:	681b      	ldr	r3, [r3, #0]
+ 80009aa:	4a88      	ldr	r2, [pc, #544]	; (8000bcc <main+0x2bc>)
+ 80009ac:	605a      	str	r2, [r3, #4]
+  // old: GPIOB->CRL = 0x43444440; // b0 ain, b6 GPIO PP
+  GPIOB->CRL = 0x434444BB; // b0, b1 are AF PP, b6 GPIO PP
+ 80009ae:	4b86      	ldr	r3, [pc, #536]	; (8000bc8 <main+0x2b8>)
+ 80009b0:	681b      	ldr	r3, [r3, #0]
+ 80009b2:	4a87      	ldr	r2, [pc, #540]	; (8000bd0 <main+0x2c0>)
+ 80009b4:	601a      	str	r2, [r3, #0]
+  GPIOB->ODR &= ~b11;  //clear pb11 to select bemf off time sampling
+ 80009b6:	4b84      	ldr	r3, [pc, #528]	; (8000bc8 <main+0x2b8>)
+ 80009b8:	681b      	ldr	r3, [r3, #0]
+ 80009ba:	68da      	ldr	r2, [r3, #12]
+ 80009bc:	4b82      	ldr	r3, [pc, #520]	; (8000bc8 <main+0x2b8>)
+ 80009be:	681b      	ldr	r3, [r3, #0]
+ 80009c0:	f422 6200 	bic.w	r2, r2, #2048	; 0x800
+ 80009c4:	60da      	str	r2, [r3, #12]
 
-// sk DAC->CR = b16+b0 ; // enable both DACs
+  // tim1 setup
+  TIM1->SMCR = b15; // make ETR input active low
+ 80009c6:	4b83      	ldr	r3, [pc, #524]	; (8000bd4 <main+0x2c4>)
+ 80009c8:	681b      	ldr	r3, [r3, #0]
+ 80009ca:	f44f 4200 	mov.w	r2, #32768	; 0x8000
+ 80009ce:	811a      	strh	r2, [r3, #8]
+  TIM1->CR2= b9+b11+b13;
+ 80009d0:	4b80      	ldr	r3, [pc, #512]	; (8000bd4 <main+0x2c4>)
+ 80009d2:	681b      	ldr	r3, [r3, #0]
+ 80009d4:	f44f 5228 	mov.w	r2, #10752	; 0x2a00
+ 80009d8:	809a      	strh	r2, [r3, #4]
+  TIM1->CCR1= 0;
+ 80009da:	4b7e      	ldr	r3, [pc, #504]	; (8000bd4 <main+0x2c4>)
+ 80009dc:	681b      	ldr	r3, [r3, #0]
+ 80009de:	2200      	movs	r2, #0
+ 80009e0:	869a      	strh	r2, [r3, #52]	; 0x34
+  TIM1->CCR2= 0;
+ 80009e2:	4b7c      	ldr	r3, [pc, #496]	; (8000bd4 <main+0x2c4>)
+ 80009e4:	681b      	ldr	r3, [r3, #0]
+ 80009e6:	2200      	movs	r2, #0
+ 80009e8:	871a      	strh	r2, [r3, #56]	; 0x38
+  TIM1->CCR3= 0;
+ 80009ea:	4b7a      	ldr	r3, [pc, #488]	; (8000bd4 <main+0x2c4>)
+ 80009ec:	681b      	ldr	r3, [r3, #0]
+ 80009ee:	2200      	movs	r2, #0
+ 80009f0:	879a      	strh	r2, [r3, #60]	; 0x3c
+  TIM1->CCR4= 1100;
+ 80009f2:	4b78      	ldr	r3, [pc, #480]	; (8000bd4 <main+0x2c4>)
+ 80009f4:	681b      	ldr	r3, [r3, #0]
+ 80009f6:	f240 424c 	movw	r2, #1100	; 0x44c
+ 80009fa:	f8a3 2040 	strh.w	r2, [r3, #64]	; 0x40
+  TIM1->ARR=1200;
+ 80009fe:	4b75      	ldr	r3, [pc, #468]	; (8000bd4 <main+0x2c4>)
+ 8000a00:	681b      	ldr	r3, [r3, #0]
+ 8000a02:	f44f 6296 	mov.w	r2, #1200	; 0x4b0
+ 8000a06:	859a      	strh	r2, [r3, #44]	; 0x2c
+  TIM1->CR1=0x0001;
+ 8000a08:	4b72      	ldr	r3, [pc, #456]	; (8000bd4 <main+0x2c4>)
+ 8000a0a:	681b      	ldr	r3, [r3, #0]
+ 8000a0c:	2201      	movs	r2, #1
+ 8000a0e:	801a      	strh	r2, [r3, #0]
+  // b12 to enable brk input
+  TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
+ 8000a10:	4b70      	ldr	r3, [pc, #448]	; (8000bd4 <main+0x2c4>)
+ 8000a12:	681b      	ldr	r3, [r3, #0]
+ 8000a14:	f649 0210 	movw	r2, #38928	; 0x9810
+ 8000a18:	f8a3 2044 	strh.w	r2, [r3, #68]	; 0x44
+  // note: b15 b7 and b7 are to enable   based current limit
+  TIM1->CCMR1= 0x6868 +b15 + b7;
+ 8000a1c:	4b6d      	ldr	r3, [pc, #436]	; (8000bd4 <main+0x2c4>)
+ 8000a1e:	681b      	ldr	r3, [r3, #0]
+ 8000a20:	f64e 02e8 	movw	r2, #59624	; 0xe8e8
+ 8000a24:	831a      	strh	r2, [r3, #24]
+  TIM1->CCMR2= 0x6868 +b7;
+ 8000a26:	4b6b      	ldr	r3, [pc, #428]	; (8000bd4 <main+0x2c4>)
+ 8000a28:	681b      	ldr	r3, [r3, #0]
+ 8000a2a:	f646 02e8 	movw	r2, #26856	; 0x68e8
+ 8000a2e:	839a      	strh	r2, [r3, #28]
+  // b4 for cc4 and b7 for brk interrupt
+  TIM1->DIER = b4+b7;  // enable cc4 interrupt
+ 8000a30:	4b68      	ldr	r3, [pc, #416]	; (8000bd4 <main+0x2c4>)
+ 8000a32:	681b      	ldr	r3, [r3, #0]
+ 8000a34:	2290      	movs	r2, #144	; 0x90
+ 8000a36:	819a      	strh	r2, [r3, #12]
+  // sk RCC->APB1ENR |= b29; // enable DAC peripheral clock
 
-// ADC setup
-ADC1->CR2=0x00000001;  // turn ADC on
- 8000a3a:	4b67      	ldr	r3, [pc, #412]	; (8000bd8 <main+0x2c8>)
- 8000a3c:	681b      	ldr	r3, [r3, #0]
- 8000a3e:	2201      	movs	r2, #1
- 8000a40:	609a      	str	r2, [r3, #8]
-ADC_StartCalibration(ADC1);
- 8000a42:	4b65      	ldr	r3, [pc, #404]	; (8000bd8 <main+0x2c8>)
- 8000a44:	681b      	ldr	r3, [r3, #0]
- 8000a46:	4618      	mov	r0, r3
- 8000a48:	f7ff fb80 	bl	800014c <ADC_StartCalibration>
-while (ADC_GetCalibrationStatus(ADC1) );
- 8000a4c:	bf00      	nop
- 8000a4e:	4b62      	ldr	r3, [pc, #392]	; (8000bd8 <main+0x2c8>)
- 8000a50:	681b      	ldr	r3, [r3, #0]
- 8000a52:	4618      	mov	r0, r3
- 8000a54:	f7ff fb89 	bl	800016a <ADC_GetCalibrationStatus>
- 8000a58:	4603      	mov	r3, r0
- 8000a5a:	2b00      	cmp	r3, #0
- 8000a5c:	d1f7      	bne.n	8000a4e <main+0x13e>
-ADC1->CR1=0x00000800;  // enable discontinuous regular conversion
- 8000a5e:	4b5e      	ldr	r3, [pc, #376]	; (8000bd8 <main+0x2c8>)
- 8000a60:	681b      	ldr	r3, [r3, #0]
- 8000a62:	f44f 6200 	mov.w	r2, #2048	; 0x800
- 8000a66:	605a      	str	r2, [r3, #4]
-ADC1->CR2=0x00000001;  // turn ADC on
- 8000a68:	4b5b      	ldr	r3, [pc, #364]	; (8000bd8 <main+0x2c8>)
- 8000a6a:	681b      	ldr	r3, [r3, #0]
- 8000a6c:	2201      	movs	r2, #1
- 8000a6e:	609a      	str	r2, [r3, #8]
+  // sk DAC->CR = b16+b0 ; // enable both DACs
 
-// initialization
-globalcounter=0;
- 8000a70:	4b5a      	ldr	r3, [pc, #360]	; (8000bdc <main+0x2cc>)
- 8000a72:	2200      	movs	r2, #0
- 8000a74:	601a      	str	r2, [r3, #0]
-heartbeat1time=0;
- 8000a76:	4b5a      	ldr	r3, [pc, #360]	; (8000be0 <main+0x2d0>)
- 8000a78:	2200      	movs	r2, #0
- 8000a7a:	601a      	str	r2, [r3, #0]
-heartbeat2time=0;
- 8000a7c:	4b59      	ldr	r3, [pc, #356]	; (8000be4 <main+0x2d4>)
- 8000a7e:	2200      	movs	r2, #0
- 8000a80:	601a      	str	r2, [r3, #0]
-heartbeat3time=0;
- 8000a82:	4b59      	ldr	r3, [pc, #356]	; (8000be8 <main+0x2d8>)
- 8000a84:	2200      	movs	r2, #0
- 8000a86:	601a      	str	r2, [r3, #0]
-run=0;
- 8000a88:	4b58      	ldr	r3, [pc, #352]	; (8000bec <main+0x2dc>)
- 8000a8a:	2200      	movs	r2, #0
- 8000a8c:	701a      	strb	r2, [r3, #0]
-motorstartinit();
- 8000a8e:	f000 fe17 	bl	80016c0 <motorstartinit>
+  // ADC setup
+  ADC1->CR2=0x00000001;  // turn ADC on
+ 8000a38:	4b67      	ldr	r3, [pc, #412]	; (8000bd8 <main+0x2c8>)
+ 8000a3a:	681b      	ldr	r3, [r3, #0]
+ 8000a3c:	2201      	movs	r2, #1
+ 8000a3e:	609a      	str	r2, [r3, #8]
+  ADC_StartCalibration(ADC1);
+ 8000a40:	4b65      	ldr	r3, [pc, #404]	; (8000bd8 <main+0x2c8>)
+ 8000a42:	681b      	ldr	r3, [r3, #0]
+ 8000a44:	4618      	mov	r0, r3
+ 8000a46:	f7ff fb81 	bl	800014c <ADC_StartCalibration>
+  while (ADC_GetCalibrationStatus(ADC1) );
+ 8000a4a:	bf00      	nop
+ 8000a4c:	4b62      	ldr	r3, [pc, #392]	; (8000bd8 <main+0x2c8>)
+ 8000a4e:	681b      	ldr	r3, [r3, #0]
+ 8000a50:	4618      	mov	r0, r3
+ 8000a52:	f7ff fb8a 	bl	800016a <ADC_GetCalibrationStatus>
+ 8000a56:	4603      	mov	r3, r0
+ 8000a58:	2b00      	cmp	r3, #0
+ 8000a5a:	d1f7      	bne.n	8000a4c <main+0x13c>
+  ADC1->CR1=0x00000800;  // enable discontinuous regular conversion
+ 8000a5c:	4b5e      	ldr	r3, [pc, #376]	; (8000bd8 <main+0x2c8>)
+ 8000a5e:	681b      	ldr	r3, [r3, #0]
+ 8000a60:	f44f 6200 	mov.w	r2, #2048	; 0x800
+ 8000a64:	605a      	str	r2, [r3, #4]
+  ADC1->CR2=0x00000001;  // turn ADC on
+ 8000a66:	4b5c      	ldr	r3, [pc, #368]	; (8000bd8 <main+0x2c8>)
+ 8000a68:	681b      	ldr	r3, [r3, #0]
+ 8000a6a:	2201      	movs	r2, #1
+ 8000a6c:	609a      	str	r2, [r3, #8]
 
-// get ifb average offset level
-long0=1;
- 8000a92:	2301      	movs	r3, #1
- 8000a94:	617b      	str	r3, [r7, #20]
-long1=0;
- 8000a96:	2300      	movs	r3, #0
- 8000a98:	613b      	str	r3, [r7, #16]
-while(long0<1025)
- 8000a9a:	e018      	b.n	8000ace <main+0x1be>
-{
-ADC1->SQR3=0x00000000; // current sense adc channel
- 8000a9c:	4b4e      	ldr	r3, [pc, #312]	; (8000bd8 <main+0x2c8>)
- 8000a9e:	681b      	ldr	r3, [r3, #0]
- 8000aa0:	2200      	movs	r2, #0
- 8000aa2:	635a      	str	r2, [r3, #52]	; 0x34
-ADC1->CR2=0x00000001;  // start ADC conversion of bemf
- 8000aa4:	4b4c      	ldr	r3, [pc, #304]	; (8000bd8 <main+0x2c8>)
- 8000aa6:	681b      	ldr	r3, [r3, #0]
- 8000aa8:	2201      	movs	r2, #1
- 8000aaa:	609a      	str	r2, [r3, #8]
-while((ADC1->SR & b1)==0) ; // wait for conversion to complete
- 8000aac:	bf00      	nop
- 8000aae:	4b4a      	ldr	r3, [pc, #296]	; (8000bd8 <main+0x2c8>)
+  // initialization
+  globalcounter=0;
+ 8000a6e:	4b5b      	ldr	r3, [pc, #364]	; (8000bdc <main+0x2cc>)
+ 8000a70:	2200      	movs	r2, #0
+ 8000a72:	601a      	str	r2, [r3, #0]
+  heartbeat1time=0;
+ 8000a74:	4b5a      	ldr	r3, [pc, #360]	; (8000be0 <main+0x2d0>)
+ 8000a76:	2200      	movs	r2, #0
+ 8000a78:	601a      	str	r2, [r3, #0]
+  heartbeat2time=0;
+ 8000a7a:	4b5a      	ldr	r3, [pc, #360]	; (8000be4 <main+0x2d4>)
+ 8000a7c:	2200      	movs	r2, #0
+ 8000a7e:	601a      	str	r2, [r3, #0]
+  heartbeat3time=0;
+ 8000a80:	4b59      	ldr	r3, [pc, #356]	; (8000be8 <main+0x2d8>)
+ 8000a82:	2200      	movs	r2, #0
+ 8000a84:	601a      	str	r2, [r3, #0]
+  run=0;
+ 8000a86:	4b59      	ldr	r3, [pc, #356]	; (8000bec <main+0x2dc>)
+ 8000a88:	2200      	movs	r2, #0
+ 8000a8a:	701a      	strb	r2, [r3, #0]
+  motorstartinit();
+ 8000a8c:	f000 fe18 	bl	80016c0 <motorstartinit>
+
+  // get ifb average offset level
+  long0=1;
+ 8000a90:	2301      	movs	r3, #1
+ 8000a92:	617b      	str	r3, [r7, #20]
+  long1=0;
+ 8000a94:	2300      	movs	r3, #0
+ 8000a96:	613b      	str	r3, [r7, #16]
+  while(long0<1025)
+ 8000a98:	e018      	b.n	8000acc <main+0x1bc>
+    {
+      ADC1->SQR3=0x00000000; // current sense adc channel
+ 8000a9a:	4b4f      	ldr	r3, [pc, #316]	; (8000bd8 <main+0x2c8>)
+ 8000a9c:	681b      	ldr	r3, [r3, #0]
+ 8000a9e:	2200      	movs	r2, #0
+ 8000aa0:	635a      	str	r2, [r3, #52]	; 0x34
+      ADC1->CR2=0x00000001;  // start ADC conversion of bemf
+ 8000aa2:	4b4d      	ldr	r3, [pc, #308]	; (8000bd8 <main+0x2c8>)
+ 8000aa4:	681b      	ldr	r3, [r3, #0]
+ 8000aa6:	2201      	movs	r2, #1
+ 8000aa8:	609a      	str	r2, [r3, #8]
+      while((ADC1->SR & b1)==0) ; // wait for conversion to complete
+ 8000aaa:	bf00      	nop
+ 8000aac:	4b4a      	ldr	r3, [pc, #296]	; (8000bd8 <main+0x2c8>)
+ 8000aae:	681b      	ldr	r3, [r3, #0]
  8000ab0:	681b      	ldr	r3, [r3, #0]
- 8000ab2:	681b      	ldr	r3, [r3, #0]
- 8000ab4:	f003 0302 	and.w	r3, r3, #2
- 8000ab8:	2b00      	cmp	r3, #0
- 8000aba:	d0f8      	beq.n	8000aae <main+0x19e>
-long1 = long1 + ADC1->DR;
- 8000abc:	4b46      	ldr	r3, [pc, #280]	; (8000bd8 <main+0x2c8>)
- 8000abe:	681b      	ldr	r3, [r3, #0]
- 8000ac0:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
- 8000ac2:	693a      	ldr	r2, [r7, #16]
- 8000ac4:	4413      	add	r3, r2
- 8000ac6:	613b      	str	r3, [r7, #16]
-long0++; // inc loop counter
- 8000ac8:	697b      	ldr	r3, [r7, #20]
- 8000aca:	3301      	adds	r3, #1
- 8000acc:	617b      	str	r3, [r7, #20]
-while(long0<1025)
- 8000ace:	697b      	ldr	r3, [r7, #20]
- 8000ad0:	f5b3 6f80 	cmp.w	r3, #1024	; 0x400
- 8000ad4:	d9e2      	bls.n	8000a9c <main+0x18c>
-}
-ifboffset = long1>>10; // average = sum div by 1024
- 8000ad6:	693b      	ldr	r3, [r7, #16]
- 8000ad8:	0a9b      	lsrs	r3, r3, #10
- 8000ada:	b29a      	uxth	r2, r3
- 8000adc:	4b44      	ldr	r3, [pc, #272]	; (8000bf0 <main+0x2e0>)
- 8000ade:	801a      	strh	r2, [r3, #0]
+ 8000ab2:	f003 0302 	and.w	r3, r3, #2
+ 8000ab6:	2b00      	cmp	r3, #0
+ 8000ab8:	d0f8      	beq.n	8000aac <main+0x19c>
+      long1 = long1 + ADC1->DR;
+ 8000aba:	4b47      	ldr	r3, [pc, #284]	; (8000bd8 <main+0x2c8>)
+ 8000abc:	681b      	ldr	r3, [r3, #0]
+ 8000abe:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
+ 8000ac0:	693a      	ldr	r2, [r7, #16]
+ 8000ac2:	4413      	add	r3, r2
+ 8000ac4:	613b      	str	r3, [r7, #16]
+      long0++; // inc loop counter
+ 8000ac6:	697b      	ldr	r3, [r7, #20]
+ 8000ac8:	3301      	adds	r3, #1
+ 8000aca:	617b      	str	r3, [r7, #20]
+  while(long0<1025)
+ 8000acc:	697b      	ldr	r3, [r7, #20]
+ 8000ace:	f5b3 6f80 	cmp.w	r3, #1024	; 0x400
+ 8000ad2:	d9e2      	bls.n	8000a9a <main+0x18a>
+    }
+  ifboffset = long1>>10; // average = sum div by 1024
+ 8000ad4:	693b      	ldr	r3, [r7, #16]
+ 8000ad6:	0a9b      	lsrs	r3, r3, #10
+ 8000ad8:	b29a      	uxth	r2, r3
+ 8000ada:	4b45      	ldr	r3, [pc, #276]	; (8000bf0 <main+0x2e0>)
+ 8000adc:	801a      	strh	r2, [r3, #0]
 
-NVIC_InitTypeDef NVIC_InitStructure;
-// enable tim1 CC interrupt
-NVIC_InitStructure.NVIC_IRQChannel = TIM1_CC_IRQChannel;
- 8000ae0:	231b      	movs	r3, #27
- 8000ae2:	703b      	strb	r3, [r7, #0]
-NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
- 8000ae4:	2301      	movs	r3, #1
- 8000ae6:	707b      	strb	r3, [r7, #1]
-NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
- 8000ae8:	2303      	movs	r3, #3
- 8000aea:	70bb      	strb	r3, [r7, #2]
-NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
- 8000aec:	2301      	movs	r3, #1
- 8000aee:	70fb      	strb	r3, [r7, #3]
-NVIC_Init(&NVIC_InitStructure);
- 8000af0:	463b      	mov	r3, r7
- 8000af2:	4618      	mov	r0, r3
- 8000af4:	f7ff fc3c 	bl	8000370 <NVIC_Init>
+  NVIC_InitTypeDef NVIC_InitStructure;
+  // enable tim1 CC interrupt
+  NVIC_InitStructure.NVIC_IRQChannel = TIM1_CC_IRQChannel;
+ 8000ade:	231b      	movs	r3, #27
+ 8000ae0:	703b      	strb	r3, [r7, #0]
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+ 8000ae2:	2301      	movs	r3, #1
+ 8000ae4:	707b      	strb	r3, [r7, #1]
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+ 8000ae6:	2303      	movs	r3, #3
+ 8000ae8:	70bb      	strb	r3, [r7, #2]
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ 8000aea:	2301      	movs	r3, #1
+ 8000aec:	70fb      	strb	r3, [r7, #3]
+  NVIC_Init(&NVIC_InitStructure);
+ 8000aee:	463b      	mov	r3, r7
+ 8000af0:	4618      	mov	r0, r3
+ 8000af2:	f7ff fc3d 	bl	8000370 <NVIC_Init>
 
-// enable tim1 brk interrupt
-NVIC_InitStructure.NVIC_IRQChannel = TIM1_BRK_IRQChannel;
- 8000af8:	2318      	movs	r3, #24
- 8000afa:	703b      	strb	r3, [r7, #0]
-NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
- 8000afc:	2301      	movs	r3, #1
- 8000afe:	707b      	strb	r3, [r7, #1]
-NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
- 8000b00:	2303      	movs	r3, #3
- 8000b02:	70bb      	strb	r3, [r7, #2]
-NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
- 8000b04:	2301      	movs	r3, #1
- 8000b06:	70fb      	strb	r3, [r7, #3]
-NVIC_Init(&NVIC_InitStructure);
- 8000b08:	463b      	mov	r3, r7
- 8000b0a:	4618      	mov	r0, r3
- 8000b0c:	f7ff fc30 	bl	8000370 <NVIC_Init>
-  
-while (1) // main background loop
-{
+  // enable tim1 brk interrupt
+  NVIC_InitStructure.NVIC_IRQChannel = TIM1_BRK_IRQChannel;
+ 8000af6:	2318      	movs	r3, #24
+ 8000af8:	703b      	strb	r3, [r7, #0]
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+ 8000afa:	2301      	movs	r3, #1
+ 8000afc:	707b      	strb	r3, [r7, #1]
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+ 8000afe:	2303      	movs	r3, #3
+ 8000b00:	70bb      	strb	r3, [r7, #2]
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+ 8000b02:	2301      	movs	r3, #1
+ 8000b04:	70fb      	strb	r3, [r7, #3]
+  NVIC_Init(&NVIC_InitStructure);
+ 8000b06:	463b      	mov	r3, r7
+ 8000b08:	4618      	mov	r0, r3
+ 8000b0a:	f7ff fc31 	bl	8000370 <NVIC_Init>
 
-long0 = globalcounter - heartbeat1time;
- 8000b10:	4b32      	ldr	r3, [pc, #200]	; (8000bdc <main+0x2cc>)
- 8000b12:	681a      	ldr	r2, [r3, #0]
- 8000b14:	4b32      	ldr	r3, [pc, #200]	; (8000be0 <main+0x2d0>)
- 8000b16:	681b      	ldr	r3, [r3, #0]
- 8000b18:	1ad3      	subs	r3, r2, r3
- 8000b1a:	617b      	str	r3, [r7, #20]
-if(long0>1) 
- 8000b1c:	697b      	ldr	r3, [r7, #20]
- 8000b1e:	2b01      	cmp	r3, #1
- 8000b20:	d927      	bls.n	8000b72 <main+0x262>
-// ******************** 100 microsecond routine ************************
-{
-heartbeat1time=globalcounter;
- 8000b22:	4b2e      	ldr	r3, [pc, #184]	; (8000bdc <main+0x2cc>)
- 8000b24:	681b      	ldr	r3, [r3, #0]
- 8000b26:	4a2e      	ldr	r2, [pc, #184]	; (8000be0 <main+0x2d0>)
- 8000b28:	6013      	str	r3, [r2, #0]
+  while (1) // main background loop
+    {
 
-// ***** state variable speed observer *****
-slong0= position - (positionest>>12);// observer position error
- 8000b2a:	4b32      	ldr	r3, [pc, #200]	; (8000bf4 <main+0x2e4>)
- 8000b2c:	681a      	ldr	r2, [r3, #0]
- 8000b2e:	4b32      	ldr	r3, [pc, #200]	; (8000bf8 <main+0x2e8>)
- 8000b30:	681b      	ldr	r3, [r3, #0]
- 8000b32:	0b1b      	lsrs	r3, r3, #12
- 8000b34:	1ad3      	subs	r3, r2, r3
- 8000b36:	60fb      	str	r3, [r7, #12]
-speedest = slong0;  // store speed estimate
- 8000b38:	68fb      	ldr	r3, [r7, #12]
- 8000b3a:	b21a      	sxth	r2, r3
- 8000b3c:	4b2f      	ldr	r3, [pc, #188]	; (8000bfc <main+0x2ec>)
- 8000b3e:	801a      	strh	r2, [r3, #0]
-// integrate estimated speed into estimated position
-positionest = positionest + speedest ; 
- 8000b40:	4b2e      	ldr	r3, [pc, #184]	; (8000bfc <main+0x2ec>)
- 8000b42:	f9b3 3000 	ldrsh.w	r3, [r3]
- 8000b46:	461a      	mov	r2, r3
- 8000b48:	4b2b      	ldr	r3, [pc, #172]	; (8000bf8 <main+0x2e8>)
- 8000b4a:	681b      	ldr	r3, [r3, #0]
- 8000b4c:	4413      	add	r3, r2
- 8000b4e:	4a2a      	ldr	r2, [pc, #168]	; (8000bf8 <main+0x2e8>)
- 8000b50:	6013      	str	r3, [r2, #0]
+      long0 = globalcounter - heartbeat1time;
+ 8000b0e:	4b33      	ldr	r3, [pc, #204]	; (8000bdc <main+0x2cc>)
+ 8000b10:	681a      	ldr	r2, [r3, #0]
+ 8000b12:	4b33      	ldr	r3, [pc, #204]	; (8000be0 <main+0x2d0>)
+ 8000b14:	681b      	ldr	r3, [r3, #0]
+ 8000b16:	1ad3      	subs	r3, r2, r3
+ 8000b18:	617b      	str	r3, [r7, #20]
+      if(long0>1)
+ 8000b1a:	697b      	ldr	r3, [r7, #20]
+ 8000b1c:	2b01      	cmp	r3, #1
+ 8000b1e:	d927      	bls.n	8000b70 <main+0x260>
+	// ******************** 100 microsecond routine ************************
+	{
+	  heartbeat1time=globalcounter;
+ 8000b20:	4b2e      	ldr	r3, [pc, #184]	; (8000bdc <main+0x2cc>)
+ 8000b22:	681b      	ldr	r3, [r3, #0]
+ 8000b24:	4a2e      	ldr	r2, [pc, #184]	; (8000be0 <main+0x2d0>)
+ 8000b26:	6013      	str	r3, [r2, #0]
 
-// catch eventual rollover of positionest (and position) and prevent
-if( positionest & 0x80000000 ) // if positionest is greater than half range
- 8000b52:	4b29      	ldr	r3, [pc, #164]	; (8000bf8 <main+0x2e8>)
- 8000b54:	681b      	ldr	r3, [r3, #0]
- 8000b56:	2b00      	cmp	r3, #0
- 8000b58:	da0b      	bge.n	8000b72 <main+0x262>
-{
-positionest= positionest & 0x7FFFFFFF; // subtract 0x80000000
- 8000b5a:	4b27      	ldr	r3, [pc, #156]	; (8000bf8 <main+0x2e8>)
- 8000b5c:	681b      	ldr	r3, [r3, #0]
- 8000b5e:	f023 4300 	bic.w	r3, r3, #2147483648	; 0x80000000
- 8000b62:	4a25      	ldr	r2, [pc, #148]	; (8000bf8 <main+0x2e8>)
- 8000b64:	6013      	str	r3, [r2, #0]
-position=position-524288; // subtract (0x80000000>>12)
- 8000b66:	4b23      	ldr	r3, [pc, #140]	; (8000bf4 <main+0x2e4>)
- 8000b68:	681b      	ldr	r3, [r3, #0]
- 8000b6a:	f5a3 2300 	sub.w	r3, r3, #524288	; 0x80000
- 8000b6e:	4a21      	ldr	r2, [pc, #132]	; (8000bf4 <main+0x2e4>)
- 8000b70:	6013      	str	r3, [r2, #0]
-}
-} // ***************** end of 100 usec routine **********************
+	  // ***** state variable speed observer *****
+	  slong0= position - (positionest>>12);// observer position error
+ 8000b28:	4b32      	ldr	r3, [pc, #200]	; (8000bf4 <main+0x2e4>)
+ 8000b2a:	681a      	ldr	r2, [r3, #0]
+ 8000b2c:	4b32      	ldr	r3, [pc, #200]	; (8000bf8 <main+0x2e8>)
+ 8000b2e:	681b      	ldr	r3, [r3, #0]
+ 8000b30:	0b1b      	lsrs	r3, r3, #12
+ 8000b32:	1ad3      	subs	r3, r2, r3
+ 8000b34:	60fb      	str	r3, [r7, #12]
+	  speedest = slong0;  // store speed estimate
+ 8000b36:	68fb      	ldr	r3, [r7, #12]
+ 8000b38:	b21a      	sxth	r2, r3
+ 8000b3a:	4b30      	ldr	r3, [pc, #192]	; (8000bfc <main+0x2ec>)
+ 8000b3c:	801a      	strh	r2, [r3, #0]
+	  // integrate estimated speed into estimated position
+	  positionest = positionest + speedest ;
+ 8000b3e:	4b2f      	ldr	r3, [pc, #188]	; (8000bfc <main+0x2ec>)
+ 8000b40:	f9b3 3000 	ldrsh.w	r3, [r3]
+ 8000b44:	461a      	mov	r2, r3
+ 8000b46:	4b2c      	ldr	r3, [pc, #176]	; (8000bf8 <main+0x2e8>)
+ 8000b48:	681b      	ldr	r3, [r3, #0]
+ 8000b4a:	4413      	add	r3, r2
+ 8000b4c:	4a2a      	ldr	r2, [pc, #168]	; (8000bf8 <main+0x2e8>)
+ 8000b4e:	6013      	str	r3, [r2, #0]
+
+	  // catch eventual rollover of positionest (and position) and prevent
+	  if( positionest & 0x80000000 ) // if positionest is greater than half range
+ 8000b50:	4b29      	ldr	r3, [pc, #164]	; (8000bf8 <main+0x2e8>)
+ 8000b52:	681b      	ldr	r3, [r3, #0]
+ 8000b54:	2b00      	cmp	r3, #0
+ 8000b56:	da0b      	bge.n	8000b70 <main+0x260>
+	    {
+	      positionest= positionest & 0x7FFFFFFF; // subtract 0x80000000
+ 8000b58:	4b27      	ldr	r3, [pc, #156]	; (8000bf8 <main+0x2e8>)
+ 8000b5a:	681b      	ldr	r3, [r3, #0]
+ 8000b5c:	f023 4300 	bic.w	r3, r3, #2147483648	; 0x80000000
+ 8000b60:	4a25      	ldr	r2, [pc, #148]	; (8000bf8 <main+0x2e8>)
+ 8000b62:	6013      	str	r3, [r2, #0]
+	      position=position-524288; // subtract (0x80000000>>12)
+ 8000b64:	4b23      	ldr	r3, [pc, #140]	; (8000bf4 <main+0x2e4>)
+ 8000b66:	681b      	ldr	r3, [r3, #0]
+ 8000b68:	f5a3 2300 	sub.w	r3, r3, #524288	; 0x80000
+ 8000b6c:	4a21      	ldr	r2, [pc, #132]	; (8000bf4 <main+0x2e4>)
+ 8000b6e:	6013      	str	r3, [r2, #0]
+	    }
+	} // ***************** end of 100 usec routine **********************
 
 
-long0 = globalcounter - heartbeat2time;
- 8000b72:	4b1a      	ldr	r3, [pc, #104]	; (8000bdc <main+0x2cc>)
- 8000b74:	681a      	ldr	r2, [r3, #0]
- 8000b76:	4b1b      	ldr	r3, [pc, #108]	; (8000be4 <main+0x2d4>)
- 8000b78:	681b      	ldr	r3, [r3, #0]
- 8000b7a:	1ad3      	subs	r3, r2, r3
- 8000b7c:	617b      	str	r3, [r7, #20]
-if(long0>19) 
- 8000b7e:	697b      	ldr	r3, [r7, #20]
- 8000b80:	2b13      	cmp	r3, #19
- 8000b82:	f240 813e 	bls.w	8000e02 <main+0x4f2>
-// ******************** 1 millisecond routine *************************
-{
-heartbeat2time=globalcounter;
- 8000b86:	4b15      	ldr	r3, [pc, #84]	; (8000bdc <main+0x2cc>)
- 8000b88:	681b      	ldr	r3, [r3, #0]
- 8000b8a:	4a16      	ldr	r2, [pc, #88]	; (8000be4 <main+0x2d4>)
- 8000b8c:	6013      	str	r3, [r2, #0]
-
+      long0 = globalcounter - heartbeat2time;
+ 8000b70:	4b1a      	ldr	r3, [pc, #104]	; (8000bdc <main+0x2cc>)
+ 8000b72:	681a      	ldr	r2, [r3, #0]
+ 8000b74:	4b1b      	ldr	r3, [pc, #108]	; (8000be4 <main+0x2d4>)
+ 8000b76:	681b      	ldr	r3, [r3, #0]
+ 8000b78:	1ad3      	subs	r3, r2, r3
+ 8000b7a:	617b      	str	r3, [r7, #20]
+      if(long0>19)
+ 8000b7c:	697b      	ldr	r3, [r7, #20]
+ 8000b7e:	2b13      	cmp	r3, #19
+ 8000b80:	f240 813f 	bls.w	8000e02 <main+0x4f2>
+	// ******************** 1 millisecond routine *************************
+	{
+	  heartbeat2time=globalcounter;
+ 8000b84:	4b15      	ldr	r3, [pc, #84]	; (8000bdc <main+0x2cc>)
+ 8000b86:	681b      	ldr	r3, [r3, #0]
+ 8000b88:	4a16      	ldr	r2, [pc, #88]	; (8000be4 <main+0x2d4>)
+ 8000b8a:	6013      	str	r3, [r2, #0]
 
 
 
-// overload function
-if((ifbave>overloadthreshold) && !overloadflag)
- 8000b8e:	4b1c      	ldr	r3, [pc, #112]	; (8000c00 <main+0x2f0>)
- 8000b90:	f9b3 3000 	ldrsh.w	r3, [r3]
- 8000b94:	f5b3 6ffa 	cmp.w	r3, #2000	; 0x7d0
- 8000b98:	dd38      	ble.n	8000c0c <main+0x2fc>
- 8000b9a:	4b1a      	ldr	r3, [pc, #104]	; (8000c04 <main+0x2f4>)
- 8000b9c:	781b      	ldrb	r3, [r3, #0]
- 8000b9e:	2b00      	cmp	r3, #0
- 8000ba0:	d134      	bne.n	8000c0c <main+0x2fc>
-{
-overloadcounter=overloadcounter+overloaduprate;
- 8000ba2:	4b19      	ldr	r3, [pc, #100]	; (8000c08 <main+0x2f8>)
- 8000ba4:	681b      	ldr	r3, [r3, #0]
- 8000ba6:	3364      	adds	r3, #100	; 0x64
- 8000ba8:	4a17      	ldr	r2, [pc, #92]	; (8000c08 <main+0x2f8>)
- 8000baa:	6013      	str	r3, [r2, #0]
- 8000bac:	e033      	b.n	8000c16 <main+0x306>
- 8000bae:	bf00      	nop
- 8000bb0:	000f423f 	.word	0x000f423f
- 8000bb4:	20000058 	.word	0x20000058
- 8000bb8:	20000060 	.word	0x20000060
+
+	  // overload function
+	  if((ifbave>overloadthreshold) && !overloadflag)
+ 8000b8c:	4b1c      	ldr	r3, [pc, #112]	; (8000c00 <main+0x2f0>)
+ 8000b8e:	f9b3 3000 	ldrsh.w	r3, [r3]
+ 8000b92:	f5b3 6ffa 	cmp.w	r3, #2000	; 0x7d0
+ 8000b96:	dd39      	ble.n	8000c0c <main+0x2fc>
+ 8000b98:	4b1a      	ldr	r3, [pc, #104]	; (8000c04 <main+0x2f4>)
+ 8000b9a:	781b      	ldrb	r3, [r3, #0]
+ 8000b9c:	2b00      	cmp	r3, #0
+ 8000b9e:	d135      	bne.n	8000c0c <main+0x2fc>
+	    {
+	      overloadcounter=overloadcounter+overloaduprate;
+ 8000ba0:	4b19      	ldr	r3, [pc, #100]	; (8000c08 <main+0x2f8>)
+ 8000ba2:	681b      	ldr	r3, [r3, #0]
+ 8000ba4:	3364      	adds	r3, #100	; 0x64
+ 8000ba6:	4a18      	ldr	r2, [pc, #96]	; (8000c08 <main+0x2f8>)
+ 8000ba8:	6013      	str	r3, [r2, #0]
+ 8000baa:	e034      	b.n	8000c16 <main+0x306>
+ 8000bac:	000f423f 	.word	0x000f423f
+ 8000bb0:	20000058 	.word	0x20000058
+ 8000bb4:	20000060 	.word	0x20000060
+ 8000bb8:	02000040 	.word	0x02000040
  8000bbc:	20000070 	.word	0x20000070
  8000bc0:	34443bbb 	.word	0x34443bbb
- 8000bc4:	00444440 	.word	0x00444440
+ 8000bc4:	b0444440 	.word	0xb0444440
  8000bc8:	20000098 	.word	0x20000098
- 8000bcc:	bbb43444 	.word	0xbbb43444
- 8000bd0:	43444440 	.word	0x43444440
+ 8000bcc:	44443444 	.word	0x44443444
+ 8000bd0:	434444bb 	.word	0x434444bb
  8000bd4:	20000054 	.word	0x20000054
  8000bd8:	2000009c 	.word	0x2000009c
  8000bdc:	20000108 	.word	0x20000108
@@ -1827,14 +1831,14 @@ overloadcounter=overloadcounter+overloaduprate;
  8000c00:	200000d8 	.word	0x200000d8
  8000c04:	2000010c 	.word	0x2000010c
  8000c08:	20000100 	.word	0x20000100
-}
-else overloadcounter=overloadcounter-overloaddownrate;
+	    }
+	  else overloadcounter=overloadcounter-overloaddownrate;
  8000c0c:	4b62      	ldr	r3, [pc, #392]	; (8000d98 <main+0x488>)
  8000c0e:	681b      	ldr	r3, [r3, #0]
  8000c10:	3b64      	subs	r3, #100	; 0x64
  8000c12:	4a61      	ldr	r2, [pc, #388]	; (8000d98 <main+0x488>)
  8000c14:	6013      	str	r3, [r2, #0]
-if(overloadcounter<0) {overloadcounter=0; overloadflag=0; }
+	  if(overloadcounter<0) {overloadcounter=0; overloadflag=0; }
  8000c16:	4b60      	ldr	r3, [pc, #384]	; (8000d98 <main+0x488>)
  8000c18:	681b      	ldr	r3, [r3, #0]
  8000c1a:	2b00      	cmp	r3, #0
@@ -1845,7 +1849,7 @@ if(overloadcounter<0) {overloadcounter=0; overloadflag=0; }
  8000c24:	4b5d      	ldr	r3, [pc, #372]	; (8000d9c <main+0x48c>)
  8000c26:	2200      	movs	r2, #0
  8000c28:	701a      	strb	r2, [r3, #0]
-if(overloadcounter>1000000) overloadflag=255;
+	  if(overloadcounter>1000000) overloadflag=255;
  8000c2a:	4b5b      	ldr	r3, [pc, #364]	; (8000d98 <main+0x488>)
  8000c2c:	681b      	ldr	r3, [r3, #0]
  8000c2e:	4a5c      	ldr	r2, [pc, #368]	; (8000da0 <main+0x490>)
@@ -1855,7 +1859,7 @@ if(overloadcounter>1000000) overloadflag=255;
  8000c36:	22ff      	movs	r2, #255	; 0xff
  8000c38:	701a      	strb	r2, [r3, #0]
 
-if((ifb>overloadsetpoint) && overloadflag)
+	  if((ifb>overloadsetpoint) && overloadflag)
  8000c3a:	4b5a      	ldr	r3, [pc, #360]	; (8000da4 <main+0x494>)
  8000c3c:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000c40:	f5b3 7ffa 	cmp.w	r3, #500	; 0x1f4
@@ -1864,8 +1868,8 @@ if((ifb>overloadsetpoint) && overloadflag)
  8000c48:	781b      	ldrb	r3, [r3, #0]
  8000c4a:	2b00      	cmp	r3, #0
  8000c4c:	d006      	beq.n	8000c5c <main+0x34c>
-{
-overloaddclimit = overloaddclimit-3;
+	    {
+	      overloaddclimit = overloaddclimit-3;
  8000c4e:	4b56      	ldr	r3, [pc, #344]	; (8000da8 <main+0x498>)
  8000c50:	881b      	ldrh	r3, [r3, #0]
  8000c52:	3b03      	subs	r3, #3
@@ -1873,19 +1877,19 @@ overloaddclimit = overloaddclimit-3;
  8000c56:	4b54      	ldr	r3, [pc, #336]	; (8000da8 <main+0x498>)
  8000c58:	801a      	strh	r2, [r3, #0]
  8000c5a:	e005      	b.n	8000c68 <main+0x358>
-}
-else
-{
-overloaddclimit = overloaddclimit+1;
+	    }
+	  else
+	    {
+	      overloaddclimit = overloaddclimit+1;
  8000c5c:	4b52      	ldr	r3, [pc, #328]	; (8000da8 <main+0x498>)
  8000c5e:	881b      	ldrh	r3, [r3, #0]
  8000c60:	3301      	adds	r3, #1
  8000c62:	b29a      	uxth	r2, r3
  8000c64:	4b50      	ldr	r3, [pc, #320]	; (8000da8 <main+0x498>)
  8000c66:	801a      	strh	r2, [r3, #0]
-}
+	    }
 
-if(overloaddclimit>1000) overloaddclimit=1000;
+	  if(overloaddclimit>1000) overloaddclimit=1000;
  8000c68:	4b4f      	ldr	r3, [pc, #316]	; (8000da8 <main+0x498>)
  8000c6a:	881b      	ldrh	r3, [r3, #0]
  8000c6c:	f5b3 7f7a 	cmp.w	r3, #1000	; 0x3e8
@@ -1893,7 +1897,7 @@ if(overloaddclimit>1000) overloaddclimit=1000;
  8000c72:	4b4d      	ldr	r3, [pc, #308]	; (8000da8 <main+0x498>)
  8000c74:	f44f 727a 	mov.w	r2, #1000	; 0x3e8
  8000c78:	801a      	strh	r2, [r3, #0]
-if(overloaddclimit<100) overloaddclimit=100;
+	  if(overloaddclimit<100) overloaddclimit=100;
  8000c7a:	4b4b      	ldr	r3, [pc, #300]	; (8000da8 <main+0x498>)
  8000c7c:	881b      	ldrh	r3, [r3, #0]
  8000c7e:	2b63      	cmp	r3, #99	; 0x63
@@ -1903,8 +1907,8 @@ if(overloaddclimit<100) overloaddclimit=100;
  8000c86:	801a      	strh	r2, [r3, #0]
 
 
-// calculate rpm from speedest
-long0 = (speedest*6250)>>8;
+	  // calculate rpm from speedest
+	  long0 = (speedest*6250)>>8;
  8000c88:	4b48      	ldr	r3, [pc, #288]	; (8000dac <main+0x49c>)
  8000c8a:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000c8e:	461a      	mov	r2, r3
@@ -1912,7 +1916,7 @@ long0 = (speedest*6250)>>8;
  8000c94:	fb03 f302 	mul.w	r3, r3, r2
  8000c98:	121b      	asrs	r3, r3, #8
  8000c9a:	617b      	str	r3, [r7, #20]
-rpm = long0/polepairs;
+	  rpm = long0/polepairs;
  8000c9c:	697b      	ldr	r3, [r7, #20]
  8000c9e:	4a44      	ldr	r2, [pc, #272]	; (8000db0 <main+0x4a0>)
  8000ca0:	fba2 2303 	umull	r2, r3, r2, r3
@@ -1922,8 +1926,8 @@ rpm = long0/polepairs;
  8000caa:	801a      	strh	r2, [r3, #0]
 
 
-// *************** speed regulator  *********************************
-slong0 = rpmref - rpm;  // speed error
+	  // *************** speed regulator  *********************************
+	  slong0 = rpmref - rpm;  // speed error
  8000cac:	4b42      	ldr	r3, [pc, #264]	; (8000db8 <main+0x4a8>)
  8000cae:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000cb2:	461a      	mov	r2, r3
@@ -1931,20 +1935,20 @@ slong0 = rpmref - rpm;  // speed error
  8000cb6:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000cba:	1ad3      	subs	r3, r2, r3
  8000cbc:	60fb      	str	r3, [r7, #12]
-propterm = (slong0*propgain)>>8;
+	  propterm = (slong0*propgain)>>8;
  8000cbe:	68fb      	ldr	r3, [r7, #12]
  8000cc0:	029b      	lsls	r3, r3, #10
  8000cc2:	121b      	asrs	r3, r3, #8
  8000cc4:	60bb      	str	r3, [r7, #8]
-errorint = errorint + slong0;
+	  errorint = errorint + slong0;
  8000cc6:	4b3d      	ldr	r3, [pc, #244]	; (8000dbc <main+0x4ac>)
  8000cc8:	681a      	ldr	r2, [r3, #0]
  8000cca:	68fb      	ldr	r3, [r7, #12]
  8000ccc:	4413      	add	r3, r2
  8000cce:	4a3b      	ldr	r2, [pc, #236]	; (8000dbc <main+0x4ac>)
  8000cd0:	6013      	str	r3, [r2, #0]
-// set activedc to the lower of maxdc or overloaddclimit
-if(maxdc<overloaddclimit) activedclimit=maxdc; 
+	  // set activedc to the lower of maxdc or overloaddclimit
+	  if(maxdc<overloaddclimit) activedclimit=maxdc;
  8000cd2:	4b3b      	ldr	r3, [pc, #236]	; (8000dc0 <main+0x4b0>)
  8000cd4:	881a      	ldrh	r2, [r3, #0]
  8000cd6:	4b34      	ldr	r3, [pc, #208]	; (8000da8 <main+0x498>)
@@ -1956,31 +1960,31 @@ if(maxdc<overloaddclimit) activedclimit=maxdc;
  8000ce2:	4b38      	ldr	r3, [pc, #224]	; (8000dc4 <main+0x4b4>)
  8000ce4:	801a      	strh	r2, [r3, #0]
  8000ce6:	e003      	b.n	8000cf0 <main+0x3e0>
-else activedclimit = overloaddclimit;
+	  else activedclimit = overloaddclimit;
  8000ce8:	4b2f      	ldr	r3, [pc, #188]	; (8000da8 <main+0x498>)
  8000cea:	881a      	ldrh	r2, [r3, #0]
  8000cec:	4b35      	ldr	r3, [pc, #212]	; (8000dc4 <main+0x4b4>)
  8000cee:	801a      	strh	r2, [r3, #0]
 
-slong0 = activedclimit - propterm;
+	  slong0 = activedclimit - propterm;
  8000cf0:	4b34      	ldr	r3, [pc, #208]	; (8000dc4 <main+0x4b4>)
  8000cf2:	881b      	ldrh	r3, [r3, #0]
  8000cf4:	461a      	mov	r2, r3
  8000cf6:	68bb      	ldr	r3, [r7, #8]
  8000cf8:	1ad3      	subs	r3, r2, r3
  8000cfa:	60fb      	str	r3, [r7, #12]
-if(slong0<0) slong0=0; // slong0 holds maximum allowable intterm
+	  if(slong0<0) slong0=0; // slong0 holds maximum allowable intterm
  8000cfc:	68fb      	ldr	r3, [r7, #12]
  8000cfe:	2b00      	cmp	r3, #0
  8000d00:	da01      	bge.n	8000d06 <main+0x3f6>
  8000d02:	2300      	movs	r3, #0
  8000d04:	60fb      	str	r3, [r7, #12]
 
-slong0 = slong0 * intclampscaler; // slong0 holds max error integral
+	  slong0 = slong0 * intclampscaler; // slong0 holds max error integral
  8000d06:	68fb      	ldr	r3, [r7, #12]
  8000d08:	019b      	lsls	r3, r3, #6
  8000d0a:	60fb      	str	r3, [r7, #12]
-if(errorint>slong0) errorint=slong0;
+	  if(errorint>slong0) errorint=slong0;
  8000d0c:	4b2b      	ldr	r3, [pc, #172]	; (8000dbc <main+0x4ac>)
  8000d0e:	681b      	ldr	r3, [r3, #0]
  8000d10:	68fa      	ldr	r2, [r7, #12]
@@ -1989,7 +1993,7 @@ if(errorint>slong0) errorint=slong0;
  8000d16:	4a29      	ldr	r2, [pc, #164]	; (8000dbc <main+0x4ac>)
  8000d18:	68fb      	ldr	r3, [r7, #12]
  8000d1a:	6013      	str	r3, [r2, #0]
-if(errorint<0) errorint=0;
+	  if(errorint<0) errorint=0;
  8000d1c:	4b27      	ldr	r3, [pc, #156]	; (8000dbc <main+0x4ac>)
  8000d1e:	681b      	ldr	r3, [r3, #0]
  8000d20:	2b00      	cmp	r3, #0
@@ -1998,20 +2002,20 @@ if(errorint<0) errorint=0;
  8000d26:	2200      	movs	r2, #0
  8000d28:	601a      	str	r2, [r3, #0]
 
-intterm = (errorint*intgain)>>10;
+	  intterm = (errorint*intgain)>>10;
  8000d2a:	4b24      	ldr	r3, [pc, #144]	; (8000dbc <main+0x4ac>)
  8000d2c:	681b      	ldr	r3, [r3, #0]
  8000d2e:	011b      	lsls	r3, r3, #4
  8000d30:	129b      	asrs	r3, r3, #10
  8000d32:	607b      	str	r3, [r7, #4]
 
-slong0 = propterm + intterm;
+	  slong0 = propterm + intterm;
  8000d34:	68ba      	ldr	r2, [r7, #8]
  8000d36:	687b      	ldr	r3, [r7, #4]
  8000d38:	4413      	add	r3, r2
  8000d3a:	60fb      	str	r3, [r7, #12]
 
-if(slong0>activedclimit) slong0=activedclimit;
+	  if(slong0>activedclimit) slong0=activedclimit;
  8000d3c:	4b21      	ldr	r3, [pc, #132]	; (8000dc4 <main+0x4b4>)
  8000d3e:	881b      	ldrh	r3, [r3, #0]
  8000d40:	461a      	mov	r2, r3
@@ -2021,14 +2025,14 @@ if(slong0>activedclimit) slong0=activedclimit;
  8000d48:	4b1e      	ldr	r3, [pc, #120]	; (8000dc4 <main+0x4b4>)
  8000d4a:	881b      	ldrh	r3, [r3, #0]
  8000d4c:	60fb      	str	r3, [r7, #12]
-if(slong0<100) slong0=100;
+	  if(slong0<100) slong0=100;
  8000d4e:	68fb      	ldr	r3, [r7, #12]
  8000d50:	2b63      	cmp	r3, #99	; 0x63
  8000d52:	dc01      	bgt.n	8000d58 <main+0x448>
  8000d54:	2364      	movs	r3, #100	; 0x64
  8000d56:	60fb      	str	r3, [r7, #12]
 
-if( (zcfound) && (transitioncounter<100)) transitioncounter++;
+	  if( (zcfound) && (transitioncounter<100)) transitioncounter++;
  8000d58:	4b1b      	ldr	r3, [pc, #108]	; (8000dc8 <main+0x4b8>)
  8000d5a:	781b      	ldrb	r3, [r3, #0]
  8000d5c:	2b00      	cmp	r3, #0
@@ -2042,21 +2046,21 @@ if( (zcfound) && (transitioncounter<100)) transitioncounter++;
  8000d6c:	3301      	adds	r3, #1
  8000d6e:	4a17      	ldr	r2, [pc, #92]	; (8000dcc <main+0x4bc>)
  8000d70:	6013      	str	r3, [r2, #0]
-if(transitioncounter<100)
+	  if(transitioncounter<100)
  8000d72:	4b16      	ldr	r3, [pc, #88]	; (8000dcc <main+0x4bc>)
  8000d74:	681b      	ldr	r3, [r3, #0]
  8000d76:	2b63      	cmp	r3, #99	; 0x63
  8000d78:	d82c      	bhi.n	8000dd4 <main+0x4c4>
-{
-runningdc=500;
+	    {
+	      runningdc=500;
  8000d7a:	4b15      	ldr	r3, [pc, #84]	; (8000dd0 <main+0x4c0>)
  8000d7c:	f44f 72fa 	mov.w	r2, #500	; 0x1f4
  8000d80:	801a      	strh	r2, [r3, #0]
-errorint = 500 * intclampscaler;
+	      errorint = 500 * intclampscaler;
  8000d82:	4b0e      	ldr	r3, [pc, #56]	; (8000dbc <main+0x4ac>)
  8000d84:	f44f 42fa 	mov.w	r2, #32000	; 0x7d00
  8000d88:	601a      	str	r2, [r3, #0]
-rpmref = rpm;
+	      rpmref = rpm;
  8000d8a:	4b0a      	ldr	r3, [pc, #40]	; (8000db4 <main+0x4a4>)
  8000d8c:	f9b3 2000 	ldrsh.w	r2, [r3]
  8000d90:	4b09      	ldr	r3, [pc, #36]	; (8000db8 <main+0x4a8>)
@@ -2078,66 +2082,66 @@ rpmref = rpm;
  8000dc8:	200000cf 	.word	0x200000cf
  8000dcc:	200000e0 	.word	0x200000e0
  8000dd0:	200000da 	.word	0x200000da
-}
-else
-{
-runningdc=slong0;
+	    }
+	  else
+	    {
+	      runningdc=slong0;
  8000dd4:	68fb      	ldr	r3, [r7, #12]
  8000dd6:	b29a      	uxth	r2, r3
  8000dd8:	4b9c      	ldr	r3, [pc, #624]	; (800104c <main+0x73c>)
  8000dda:	801a      	strh	r2, [r3, #0]
-}
+	    }
 
-if(zcfound)
+	  if(zcfound)
  8000ddc:	4b9c      	ldr	r3, [pc, #624]	; (8001050 <main+0x740>)
  8000dde:	781b      	ldrb	r3, [r3, #0]
  8000de0:	2b00      	cmp	r3, #0
  8000de2:	d00e      	beq.n	8000e02 <main+0x4f2>
-{
-TIM1->CCR1= runningdc;
+	    {
+	      TIM1->CCR1= runningdc;
  8000de4:	4b9b      	ldr	r3, [pc, #620]	; (8001054 <main+0x744>)
  8000de6:	681b      	ldr	r3, [r3, #0]
  8000de8:	4a98      	ldr	r2, [pc, #608]	; (800104c <main+0x73c>)
  8000dea:	8812      	ldrh	r2, [r2, #0]
  8000dec:	869a      	strh	r2, [r3, #52]	; 0x34
-TIM1->CCR2= runningdc;
+	      TIM1->CCR2= runningdc;
  8000dee:	4b99      	ldr	r3, [pc, #612]	; (8001054 <main+0x744>)
  8000df0:	681b      	ldr	r3, [r3, #0]
  8000df2:	4a96      	ldr	r2, [pc, #600]	; (800104c <main+0x73c>)
  8000df4:	8812      	ldrh	r2, [r2, #0]
  8000df6:	871a      	strh	r2, [r3, #56]	; 0x38
-TIM1->CCR3= runningdc;
+	      TIM1->CCR3= runningdc;
  8000df8:	4b96      	ldr	r3, [pc, #600]	; (8001054 <main+0x744>)
  8000dfa:	681b      	ldr	r3, [r3, #0]
  8000dfc:	4a93      	ldr	r2, [pc, #588]	; (800104c <main+0x73c>)
  8000dfe:	8812      	ldrh	r2, [r2, #0]
  8000e00:	879a      	strh	r2, [r3, #60]	; 0x3c
-} // ************** end of 1 millisecond routine *************************
+	} // ************** end of 1 millisecond routine *************************
 
 
 
 
-long0 = globalcounter - heartbeat3time;
+      long0 = globalcounter - heartbeat3time;
  8000e02:	4b95      	ldr	r3, [pc, #596]	; (8001058 <main+0x748>)
  8000e04:	681a      	ldr	r2, [r3, #0]
  8000e06:	4b95      	ldr	r3, [pc, #596]	; (800105c <main+0x74c>)
  8000e08:	681b      	ldr	r3, [r3, #0]
  8000e0a:	1ad3      	subs	r3, r2, r3
  8000e0c:	617b      	str	r3, [r7, #20]
-if(long0>199) 
+      if(long0>199)
  8000e0e:	697b      	ldr	r3, [r7, #20]
  8000e10:	2bc7      	cmp	r3, #199	; 0xc7
  8000e12:	d94e      	bls.n	8000eb2 <main+0x5a2>
-{
-// ******************** 10 millisecond routine *************************
+	{
+	  // ******************** 10 millisecond routine *************************
 
-heartbeat3time=globalcounter;
+	  heartbeat3time=globalcounter;
  8000e14:	4b90      	ldr	r3, [pc, #576]	; (8001058 <main+0x748>)
  8000e16:	681b      	ldr	r3, [r3, #0]
  8000e18:	4a90      	ldr	r2, [pc, #576]	; (800105c <main+0x74c>)
  8000e1a:	6013      	str	r3, [r2, #0]
 
-potvalue = 4095 - adcread(2);  // read pot channel
+	  potvalue = 4095 - adcread(2);  // read pot channel
  8000e1c:	2002      	movs	r0, #2
  8000e1e:	f000 f933 	bl	8001088 <adcread>
  8000e22:	4603      	mov	r3, r0
@@ -2147,13 +2151,13 @@ potvalue = 4095 - adcread(2);  // read pot channel
  8000e2c:	4b8c      	ldr	r3, [pc, #560]	; (8001060 <main+0x750>)
  8000e2e:	801a      	strh	r2, [r3, #0]
 
-//sk: next line
-potvalue = 2024;
+	  //sk: next line
+	  potvalue = 2024;
  8000e30:	4b8b      	ldr	r3, [pc, #556]	; (8001060 <main+0x750>)
  8000e32:	f44f 62fd 	mov.w	r2, #2024	; 0x7e8
  8000e36:	801a      	strh	r2, [r3, #0]
 
-if(potvalue>200) run=255;
+	  if(potvalue>200) run=255;
  8000e38:	4b89      	ldr	r3, [pc, #548]	; (8001060 <main+0x750>)
  8000e3a:	881b      	ldrh	r3, [r3, #0]
  8000e3c:	2bc8      	cmp	r3, #200	; 0xc8
@@ -2161,7 +2165,7 @@ if(potvalue>200) run=255;
  8000e40:	4b88      	ldr	r3, [pc, #544]	; (8001064 <main+0x754>)
  8000e42:	22ff      	movs	r2, #255	; 0xff
  8000e44:	701a      	strb	r2, [r3, #0]
-if(potvalue<100) run=0;
+	  if(potvalue<100) run=0;
  8000e46:	4b86      	ldr	r3, [pc, #536]	; (8001060 <main+0x750>)
  8000e48:	881b      	ldrh	r3, [r3, #0]
  8000e4a:	2b63      	cmp	r3, #99	; 0x63
@@ -2169,7 +2173,7 @@ if(potvalue<100) run=0;
  8000e4e:	4b85      	ldr	r3, [pc, #532]	; (8001064 <main+0x754>)
  8000e50:	2200      	movs	r2, #0
  8000e52:	701a      	strb	r2, [r3, #0]
-rpmcmd = potvalue>>2;
+	  rpmcmd = potvalue>>2;
  8000e54:	4b82      	ldr	r3, [pc, #520]	; (8001060 <main+0x750>)
  8000e56:	881b      	ldrh	r3, [r3, #0]
  8000e58:	089b      	lsrs	r3, r3, #2
@@ -2177,7 +2181,7 @@ rpmcmd = potvalue>>2;
  8000e5c:	b21a      	sxth	r2, r3
  8000e5e:	4b82      	ldr	r3, [pc, #520]	; (8001068 <main+0x758>)
  8000e60:	801a      	strh	r2, [r3, #0]
-if(rpmcmd<100) rpmcmd=100;
+	  if(rpmcmd<100) rpmcmd=100;
  8000e62:	4b81      	ldr	r3, [pc, #516]	; (8001068 <main+0x758>)
  8000e64:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000e68:	2b63      	cmp	r3, #99	; 0x63
@@ -2187,8 +2191,8 @@ if(rpmcmd<100) rpmcmd=100;
  8000e70:	801a      	strh	r2, [r3, #0]
 
 
-// accel/decel control
-slong0 = rpmcmd-rpmref;
+	  // accel/decel control
+	  slong0 = rpmcmd-rpmref;
  8000e72:	4b7d      	ldr	r3, [pc, #500]	; (8001068 <main+0x758>)
  8000e74:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000e78:	461a      	mov	r2, r3
@@ -2196,19 +2200,19 @@ slong0 = rpmcmd-rpmref;
  8000e7c:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000e80:	1ad3      	subs	r3, r2, r3
  8000e82:	60fb      	str	r3, [r7, #12]
-if(slong0>acclim) slong0=acclim;
+	  if(slong0>acclim) slong0=acclim;
  8000e84:	68fb      	ldr	r3, [r7, #12]
  8000e86:	2b05      	cmp	r3, #5
  8000e88:	dd01      	ble.n	8000e8e <main+0x57e>
  8000e8a:	2305      	movs	r3, #5
  8000e8c:	60fb      	str	r3, [r7, #12]
-if(slong0<-declim) slong0=-declim;
+	  if(slong0<-declim) slong0=-declim;
  8000e8e:	68fb      	ldr	r3, [r7, #12]
  8000e90:	f113 0f05 	cmn.w	r3, #5
  8000e94:	da02      	bge.n	8000e9c <main+0x58c>
  8000e96:	f06f 0304 	mvn.w	r3, #4
  8000e9a:	60fb      	str	r3, [r7, #12]
-rpmref = rpmref + slong0;
+	  rpmref = rpmref + slong0;
  8000e9c:	68fb      	ldr	r3, [r7, #12]
  8000e9e:	b29a      	uxth	r2, r3
  8000ea0:	4b72      	ldr	r3, [pc, #456]	; (800106c <main+0x75c>)
@@ -2223,8 +2227,8 @@ rpmref = rpmref + slong0;
 
 
 
-// background code that runs with every loop
-if(overcurrent) flashcount=2;
+      // background code that runs with every loop
+      if(overcurrent) flashcount=2;
  8000eb2:	4b6f      	ldr	r3, [pc, #444]	; (8001070 <main+0x760>)
  8000eb4:	781b      	ldrb	r3, [r3, #0]
  8000eb6:	2b00      	cmp	r3, #0
@@ -2233,57 +2237,57 @@ if(overcurrent) flashcount=2;
  8000ebc:	2202      	movs	r2, #2
  8000ebe:	701a      	strb	r2, [r3, #0]
 
-switch(ledstate)
+      switch(ledstate)
  8000ec0:	4b6d      	ldr	r3, [pc, #436]	; (8001078 <main+0x768>)
  8000ec2:	781b      	ldrb	r3, [r3, #0]
  8000ec4:	2b28      	cmp	r3, #40	; 0x28
- 8000ec6:	f63f ae23 	bhi.w	8000b10 <main+0x200>
+ 8000ec6:	f63f ae22 	bhi.w	8000b0e <main+0x1fe>
  8000eca:	a201      	add	r2, pc, #4	; (adr r2, 8000ed0 <main+0x5c0>)
  8000ecc:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
  8000ed0:	08000f75 	.word	0x08000f75
- 8000ed4:	08000b11 	.word	0x08000b11
- 8000ed8:	08000b11 	.word	0x08000b11
- 8000edc:	08000b11 	.word	0x08000b11
- 8000ee0:	08000b11 	.word	0x08000b11
- 8000ee4:	08000b11 	.word	0x08000b11
- 8000ee8:	08000b11 	.word	0x08000b11
- 8000eec:	08000b11 	.word	0x08000b11
- 8000ef0:	08000b11 	.word	0x08000b11
- 8000ef4:	08000b11 	.word	0x08000b11
+ 8000ed4:	08000b0f 	.word	0x08000b0f
+ 8000ed8:	08000b0f 	.word	0x08000b0f
+ 8000edc:	08000b0f 	.word	0x08000b0f
+ 8000ee0:	08000b0f 	.word	0x08000b0f
+ 8000ee4:	08000b0f 	.word	0x08000b0f
+ 8000ee8:	08000b0f 	.word	0x08000b0f
+ 8000eec:	08000b0f 	.word	0x08000b0f
+ 8000ef0:	08000b0f 	.word	0x08000b0f
+ 8000ef4:	08000b0f 	.word	0x08000b0f
  8000ef8:	08000fad 	.word	0x08000fad
- 8000efc:	08000b11 	.word	0x08000b11
- 8000f00:	08000b11 	.word	0x08000b11
- 8000f04:	08000b11 	.word	0x08000b11
- 8000f08:	08000b11 	.word	0x08000b11
- 8000f0c:	08000b11 	.word	0x08000b11
- 8000f10:	08000b11 	.word	0x08000b11
- 8000f14:	08000b11 	.word	0x08000b11
- 8000f18:	08000b11 	.word	0x08000b11
- 8000f1c:	08000b11 	.word	0x08000b11
+ 8000efc:	08000b0f 	.word	0x08000b0f
+ 8000f00:	08000b0f 	.word	0x08000b0f
+ 8000f04:	08000b0f 	.word	0x08000b0f
+ 8000f08:	08000b0f 	.word	0x08000b0f
+ 8000f0c:	08000b0f 	.word	0x08000b0f
+ 8000f10:	08000b0f 	.word	0x08000b0f
+ 8000f14:	08000b0f 	.word	0x08000b0f
+ 8000f18:	08000b0f 	.word	0x08000b0f
+ 8000f1c:	08000b0f 	.word	0x08000b0f
  8000f20:	08000fc7 	.word	0x08000fc7
- 8000f24:	08000b11 	.word	0x08000b11
- 8000f28:	08000b11 	.word	0x08000b11
- 8000f2c:	08000b11 	.word	0x08000b11
- 8000f30:	08000b11 	.word	0x08000b11
- 8000f34:	08000b11 	.word	0x08000b11
- 8000f38:	08000b11 	.word	0x08000b11
- 8000f3c:	08000b11 	.word	0x08000b11
- 8000f40:	08000b11 	.word	0x08000b11
- 8000f44:	08000b11 	.word	0x08000b11
+ 8000f24:	08000b0f 	.word	0x08000b0f
+ 8000f28:	08000b0f 	.word	0x08000b0f
+ 8000f2c:	08000b0f 	.word	0x08000b0f
+ 8000f30:	08000b0f 	.word	0x08000b0f
+ 8000f34:	08000b0f 	.word	0x08000b0f
+ 8000f38:	08000b0f 	.word	0x08000b0f
+ 8000f3c:	08000b0f 	.word	0x08000b0f
+ 8000f40:	08000b0f 	.word	0x08000b0f
+ 8000f44:	08000b0f 	.word	0x08000b0f
  8000f48:	08000fe5 	.word	0x08000fe5
- 8000f4c:	08000b11 	.word	0x08000b11
- 8000f50:	08000b11 	.word	0x08000b11
- 8000f54:	08000b11 	.word	0x08000b11
- 8000f58:	08000b11 	.word	0x08000b11
- 8000f5c:	08000b11 	.word	0x08000b11
- 8000f60:	08000b11 	.word	0x08000b11
- 8000f64:	08000b11 	.word	0x08000b11
- 8000f68:	08000b11 	.word	0x08000b11
- 8000f6c:	08000b11 	.word	0x08000b11
+ 8000f4c:	08000b0f 	.word	0x08000b0f
+ 8000f50:	08000b0f 	.word	0x08000b0f
+ 8000f54:	08000b0f 	.word	0x08000b0f
+ 8000f58:	08000b0f 	.word	0x08000b0f
+ 8000f5c:	08000b0f 	.word	0x08000b0f
+ 8000f60:	08000b0f 	.word	0x08000b0f
+ 8000f64:	08000b0f 	.word	0x08000b0f
+ 8000f68:	08000b0f 	.word	0x08000b0f
+ 8000f6c:	08000b0f 	.word	0x08000b0f
  8000f70:	0800100d 	.word	0x0800100d
-{
-case 0:
-if(flashcount==0){ledon; break;}// led on and break
+      {
+	case 0:
+	  if(flashcount==0){ledon; break;}// led on and break
  8000f74:	4b3f      	ldr	r3, [pc, #252]	; (8001074 <main+0x764>)
  8000f76:	781b      	ldrb	r3, [r3, #0]
  8000f78:	2b00      	cmp	r3, #0
@@ -2296,7 +2300,7 @@ if(flashcount==0){ledon; break;}// led on and break
  8000f86:	f422 6200 	bic.w	r2, r2, #2048	; 0x800
  8000f8a:	60da      	str	r2, [r3, #12]
  8000f8c:	e05c      	b.n	8001048 <main+0x738>
-ledoff;
+	  ledoff;
  8000f8e:	4b3b      	ldr	r3, [pc, #236]	; (800107c <main+0x76c>)
  8000f90:	681b      	ldr	r3, [r3, #0]
  8000f92:	68da      	ldr	r2, [r3, #12]
@@ -2304,37 +2308,37 @@ ledoff;
  8000f96:	681b      	ldr	r3, [r3, #0]
  8000f98:	f442 6200 	orr.w	r2, r2, #2048	; 0x800
  8000f9c:	60da      	str	r2, [r3, #12]
-ledtime=0;
+	  ledtime=0;
  8000f9e:	4b38      	ldr	r3, [pc, #224]	; (8001080 <main+0x770>)
  8000fa0:	2200      	movs	r2, #0
  8000fa2:	601a      	str	r2, [r3, #0]
-ledstate=10;
+	  ledstate=10;
  8000fa4:	4b34      	ldr	r3, [pc, #208]	; (8001078 <main+0x768>)
  8000fa6:	220a      	movs	r2, #10
  8000fa8:	701a      	strb	r2, [r3, #0]
-break;
+	  break;
  8000faa:	e04d      	b.n	8001048 <main+0x738>
 
-case 10:  // waiting out long pause
-if((ledtime)<30000) break;
+	case 10:  // waiting out long pause
+	  if((ledtime)<30000) break;
  8000fac:	4b34      	ldr	r3, [pc, #208]	; (8001080 <main+0x770>)
  8000fae:	681b      	ldr	r3, [r3, #0]
  8000fb0:	f247 522f 	movw	r2, #29999	; 0x752f
  8000fb4:	4293      	cmp	r3, r2
  8000fb6:	d942      	bls.n	800103e <main+0x72e>
-ledstate=20; 
+	  ledstate=20;
  8000fb8:	4b2f      	ldr	r3, [pc, #188]	; (8001078 <main+0x768>)
  8000fba:	2214      	movs	r2, #20
  8000fbc:	701a      	strb	r2, [r3, #0]
-flashcounter=0;
+	  flashcounter=0;
  8000fbe:	4b31      	ldr	r3, [pc, #196]	; (8001084 <main+0x774>)
  8000fc0:	2200      	movs	r2, #0
  8000fc2:	701a      	strb	r2, [r3, #0]
-break;
+	  break;
  8000fc4:	e040      	b.n	8001048 <main+0x738>
 
-case 20: // long pause over
-ledon;
+	case 20: // long pause over
+	  ledon;
  8000fc6:	4b2d      	ldr	r3, [pc, #180]	; (800107c <main+0x76c>)
  8000fc8:	681b      	ldr	r3, [r3, #0]
  8000fca:	68da      	ldr	r2, [r3, #12]
@@ -2342,24 +2346,24 @@ ledon;
  8000fce:	681b      	ldr	r3, [r3, #0]
  8000fd0:	f422 6200 	bic.w	r2, r2, #2048	; 0x800
  8000fd4:	60da      	str	r2, [r3, #12]
-ledtime=0;
+	  ledtime=0;
  8000fd6:	4b2a      	ldr	r3, [pc, #168]	; (8001080 <main+0x770>)
  8000fd8:	2200      	movs	r2, #0
  8000fda:	601a      	str	r2, [r3, #0]
-ledstate=30;
+	  ledstate=30;
  8000fdc:	4b26      	ldr	r3, [pc, #152]	; (8001078 <main+0x768>)
  8000fde:	221e      	movs	r2, #30
  8000fe0:	701a      	strb	r2, [r3, #0]
-break;
+	  break;
  8000fe2:	e031      	b.n	8001048 <main+0x738>
 
-case 30: // waiting out short on time
-if(ledtime<8000) break;
+	case 30: // waiting out short on time
+	  if(ledtime<8000) break;
  8000fe4:	4b26      	ldr	r3, [pc, #152]	; (8001080 <main+0x770>)
  8000fe6:	681b      	ldr	r3, [r3, #0]
  8000fe8:	f5b3 5ffa 	cmp.w	r3, #8000	; 0x1f40
  8000fec:	d329      	bcc.n	8001042 <main+0x732>
-ledoff;
+	  ledoff;
  8000fee:	4b23      	ldr	r3, [pc, #140]	; (800107c <main+0x76c>)
  8000ff0:	681b      	ldr	r3, [r3, #0]
  8000ff2:	68da      	ldr	r2, [r3, #12]
@@ -2367,31 +2371,31 @@ ledoff;
  8000ff6:	681b      	ldr	r3, [r3, #0]
  8000ff8:	f442 6200 	orr.w	r2, r2, #2048	; 0x800
  8000ffc:	60da      	str	r2, [r3, #12]
-ledtime=0;
+	  ledtime=0;
  8000ffe:	4b20      	ldr	r3, [pc, #128]	; (8001080 <main+0x770>)
  8001000:	2200      	movs	r2, #0
  8001002:	601a      	str	r2, [r3, #0]
-ledstate=40;
+	  ledstate=40;
  8001004:	4b1c      	ldr	r3, [pc, #112]	; (8001078 <main+0x768>)
  8001006:	2228      	movs	r2, #40	; 0x28
  8001008:	701a      	strb	r2, [r3, #0]
-break;
+	  break;
  800100a:	e01d      	b.n	8001048 <main+0x738>
 
-case 40: // waiting out short off time
-if(ledtime<8000) break;
+	case 40: // waiting out short off time
+	  if(ledtime<8000) break;
  800100c:	4b1c      	ldr	r3, [pc, #112]	; (8001080 <main+0x770>)
  800100e:	681b      	ldr	r3, [r3, #0]
  8001010:	f5b3 5ffa 	cmp.w	r3, #8000	; 0x1f40
  8001014:	d317      	bcc.n	8001046 <main+0x736>
-flashcounter++;
+	  flashcounter++;
  8001016:	4b1b      	ldr	r3, [pc, #108]	; (8001084 <main+0x774>)
  8001018:	781b      	ldrb	r3, [r3, #0]
  800101a:	3301      	adds	r3, #1
  800101c:	b2da      	uxtb	r2, r3
  800101e:	4b19      	ldr	r3, [pc, #100]	; (8001084 <main+0x774>)
  8001020:	701a      	strb	r2, [r3, #0]
-if(flashcounter>=flashcount) {ledstate=0; break;}
+	  if(flashcounter>=flashcount) {ledstate=0; break;}
  8001022:	4b18      	ldr	r3, [pc, #96]	; (8001084 <main+0x774>)
  8001024:	781a      	ldrb	r2, [r3, #0]
  8001026:	4b13      	ldr	r3, [pc, #76]	; (8001074 <main+0x764>)
@@ -2402,22 +2406,22 @@ if(flashcounter>=flashcount) {ledstate=0; break;}
  8001030:	2200      	movs	r2, #0
  8001032:	701a      	strb	r2, [r3, #0]
  8001034:	e008      	b.n	8001048 <main+0x738>
-ledstate=20;
+	  ledstate=20;
  8001036:	4b10      	ldr	r3, [pc, #64]	; (8001078 <main+0x768>)
  8001038:	2214      	movs	r2, #20
  800103a:	701a      	strb	r2, [r3, #0]
-break;
+	  break;
  800103c:	e004      	b.n	8001048 <main+0x738>
-if((ledtime)<30000) break;
+	  if((ledtime)<30000) break;
  800103e:	bf00      	nop
- 8001040:	e566      	b.n	8000b10 <main+0x200>
-if(ledtime<8000) break;
+ 8001040:	e565      	b.n	8000b0e <main+0x1fe>
+	  if(ledtime<8000) break;
  8001042:	bf00      	nop
- 8001044:	e564      	b.n	8000b10 <main+0x200>
-if(ledtime<8000) break;
+ 8001044:	e563      	b.n	8000b0e <main+0x1fe>
+	  if(ledtime<8000) break;
  8001046:	bf00      	nop
-long0 = globalcounter - heartbeat1time;
- 8001048:	e562      	b.n	8000b10 <main+0x200>
+      long0 = globalcounter - heartbeat1time;
+ 8001048:	e561      	b.n	8000b0e <main+0x1fe>
  800104a:	bf00      	nop
  800104c:	200000da 	.word	0x200000da
  8001050:	200000cf 	.word	0x200000cf
@@ -2447,19 +2451,19 @@ unsigned short adcread( unsigned char chnl)
  800108c:	af00      	add	r7, sp, #0
  800108e:	4603      	mov	r3, r0
  8001090:	71fb      	strb	r3, [r7, #7]
-unsigned short result;
+  unsigned short result;
 
-ADC1->SQR3=chnl; // set adc channel
+  ADC1->SQR3=chnl; // set adc channel
  8001092:	4b33      	ldr	r3, [pc, #204]	; (8001160 <adcread+0xd8>)
  8001094:	681b      	ldr	r3, [r3, #0]
  8001096:	79fa      	ldrb	r2, [r7, #7]
  8001098:	635a      	str	r2, [r3, #52]	; 0x34
-ADC1->CR2=1;  // start ADC conversion of bemf
+  ADC1->CR2=1;  // start ADC conversion of bemf
  800109a:	4b31      	ldr	r3, [pc, #196]	; (8001160 <adcread+0xd8>)
  800109c:	681b      	ldr	r3, [r3, #0]
  800109e:	2201      	movs	r2, #1
  80010a0:	609a      	str	r2, [r3, #8]
-while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
+  while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
  80010a2:	e005      	b.n	80010b0 <adcread+0x28>
  80010a4:	4b2e      	ldr	r3, [pc, #184]	; (8001160 <adcread+0xd8>)
  80010a6:	681b      	ldr	r3, [r3, #0]
@@ -2475,31 +2479,31 @@ while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to 
  80010bc:	d0f2      	beq.n	80010a4 <adcread+0x1c>
  80010be:	e000      	b.n	80010c2 <adcread+0x3a>
  80010c0:	bf00      	nop
-result= ADC1->DR;
+  result= ADC1->DR;
  80010c2:	4b27      	ldr	r3, [pc, #156]	; (8001160 <adcread+0xd8>)
  80010c4:	681b      	ldr	r3, [r3, #0]
  80010c6:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
  80010c8:	81fb      	strh	r3, [r7, #14]
 
-if(ADC1->SQR3!=chnl) // read again if conversion was interrupted by foreground
+  if(ADC1->SQR3!=chnl) // read again if conversion was interrupted by foreground
  80010ca:	4b25      	ldr	r3, [pc, #148]	; (8001160 <adcread+0xd8>)
  80010cc:	681b      	ldr	r3, [r3, #0]
  80010ce:	6b5a      	ldr	r2, [r3, #52]	; 0x34
  80010d0:	79fb      	ldrb	r3, [r7, #7]
  80010d2:	429a      	cmp	r2, r3
  80010d4:	d01b      	beq.n	800110e <adcread+0x86>
-{
-ADC1->SQR3=chnl; // set adc channel
+    {
+      ADC1->SQR3=chnl; // set adc channel
  80010d6:	4b22      	ldr	r3, [pc, #136]	; (8001160 <adcread+0xd8>)
  80010d8:	681b      	ldr	r3, [r3, #0]
  80010da:	79fa      	ldrb	r2, [r7, #7]
  80010dc:	635a      	str	r2, [r3, #52]	; 0x34
-ADC1->CR2=1;  // start ADC conversion of bemf
+      ADC1->CR2=1;  // start ADC conversion of bemf
  80010de:	4b20      	ldr	r3, [pc, #128]	; (8001160 <adcread+0xd8>)
  80010e0:	681b      	ldr	r3, [r3, #0]
  80010e2:	2201      	movs	r2, #1
  80010e4:	609a      	str	r2, [r3, #8]
-while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
+      while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
  80010e6:	e005      	b.n	80010f4 <adcread+0x6c>
  80010e8:	4b1d      	ldr	r3, [pc, #116]	; (8001160 <adcread+0xd8>)
  80010ea:	681b      	ldr	r3, [r3, #0]
@@ -2515,32 +2519,32 @@ while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to 
  8001100:	d0f2      	beq.n	80010e8 <adcread+0x60>
  8001102:	e000      	b.n	8001106 <adcread+0x7e>
  8001104:	bf00      	nop
-result= ADC1->DR;
+      result= ADC1->DR;
  8001106:	4b16      	ldr	r3, [pc, #88]	; (8001160 <adcread+0xd8>)
  8001108:	681b      	ldr	r3, [r3, #0]
  800110a:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
  800110c:	81fb      	strh	r3, [r7, #14]
-}
+    }
 
-if(ADC1->SQR3!=chnl) // must check third time
+  if(ADC1->SQR3!=chnl) // must check third time
  800110e:	4b14      	ldr	r3, [pc, #80]	; (8001160 <adcread+0xd8>)
  8001110:	681b      	ldr	r3, [r3, #0]
  8001112:	6b5a      	ldr	r2, [r3, #52]	; 0x34
  8001114:	79fb      	ldrb	r3, [r7, #7]
  8001116:	429a      	cmp	r2, r3
  8001118:	d01b      	beq.n	8001152 <adcread+0xca>
-{
-ADC1->SQR3=chnl; // set adc channel
+    {
+      ADC1->SQR3=chnl; // set adc channel
  800111a:	4b11      	ldr	r3, [pc, #68]	; (8001160 <adcread+0xd8>)
  800111c:	681b      	ldr	r3, [r3, #0]
  800111e:	79fa      	ldrb	r2, [r7, #7]
  8001120:	635a      	str	r2, [r3, #52]	; 0x34
-ADC1->CR2=1;  // start ADC conversion of bemf
+      ADC1->CR2=1;  // start ADC conversion of bemf
  8001122:	4b0f      	ldr	r3, [pc, #60]	; (8001160 <adcread+0xd8>)
  8001124:	681b      	ldr	r3, [r3, #0]
  8001126:	2201      	movs	r2, #1
  8001128:	609a      	str	r2, [r3, #8]
-while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
+      while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
  800112a:	e005      	b.n	8001138 <adcread+0xb0>
  800112c:	4b0c      	ldr	r3, [pc, #48]	; (8001160 <adcread+0xd8>)
  800112e:	681b      	ldr	r3, [r3, #0]
@@ -2556,13 +2560,13 @@ while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to 
  8001144:	d0f2      	beq.n	800112c <adcread+0xa4>
  8001146:	e000      	b.n	800114a <adcread+0xc2>
  8001148:	bf00      	nop
-result= ADC1->DR;
+      result= ADC1->DR;
  800114a:	4b05      	ldr	r3, [pc, #20]	; (8001160 <adcread+0xd8>)
  800114c:	681b      	ldr	r3, [r3, #0]
  800114e:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
  8001150:	81fb      	strh	r3, [r7, #14]
-}
-return result;
+    }
+  return result;
  8001152:	89fb      	ldrh	r3, [r7, #14]
 } // end of adcread function
  8001154:	4618      	mov	r0, r3
@@ -2583,45 +2587,45 @@ void PWMISR(void)
  8001166:	b082      	sub	sp, #8
  8001168:	af00      	add	r7, sp, #0
 
-unsigned long long0;
+  unsigned long long0;
 
-ADC1->SQR3=bemfchannel; 
+  ADC1->SQR3=bemfchannel;
  800116a:	4b9b      	ldr	r3, [pc, #620]	; (80013d8 <PWMISR+0x274>)
  800116c:	781a      	ldrb	r2, [r3, #0]
  800116e:	4b9b      	ldr	r3, [pc, #620]	; (80013dc <PWMISR+0x278>)
  8001170:	681b      	ldr	r3, [r3, #0]
  8001172:	635a      	str	r2, [r3, #52]	; 0x34
-ADC1->CR2=0x00000001;  // start ADC conversion of bemf
+  ADC1->CR2=0x00000001;  // start ADC conversion of bemf
  8001174:	4b99      	ldr	r3, [pc, #612]	; (80013dc <PWMISR+0x278>)
  8001176:	681b      	ldr	r3, [r3, #0]
  8001178:	2201      	movs	r2, #1
  800117a:	609a      	str	r2, [r3, #8]
-zccounter++;  // housekeeping increment of some timers while adc is converting
+  zccounter++;  // housekeeping increment of some timers while adc is converting
  800117c:	4b98      	ldr	r3, [pc, #608]	; (80013e0 <PWMISR+0x27c>)
  800117e:	881b      	ldrh	r3, [r3, #0]
  8001180:	3301      	adds	r3, #1
  8001182:	b29a      	uxth	r2, r3
  8001184:	4b96      	ldr	r3, [pc, #600]	; (80013e0 <PWMISR+0x27c>)
  8001186:	801a      	strh	r2, [r3, #0]
-alignmentcounter++;
+  alignmentcounter++;
  8001188:	4b96      	ldr	r3, [pc, #600]	; (80013e4 <PWMISR+0x280>)
  800118a:	681b      	ldr	r3, [r3, #0]
  800118c:	3301      	adds	r3, #1
  800118e:	4a95      	ldr	r2, [pc, #596]	; (80013e4 <PWMISR+0x280>)
  8001190:	6013      	str	r3, [r2, #0]
-holdcounter++;
+  holdcounter++;
  8001192:	4b95      	ldr	r3, [pc, #596]	; (80013e8 <PWMISR+0x284>)
  8001194:	681b      	ldr	r3, [r3, #0]
  8001196:	3301      	adds	r3, #1
  8001198:	4a93      	ldr	r2, [pc, #588]	; (80013e8 <PWMISR+0x284>)
  800119a:	6013      	str	r3, [r2, #0]
-ledtime++;
+  ledtime++;
  800119c:	4b93      	ldr	r3, [pc, #588]	; (80013ec <PWMISR+0x288>)
  800119e:	681b      	ldr	r3, [r3, #0]
  80011a0:	3301      	adds	r3, #1
  80011a2:	4a92      	ldr	r2, [pc, #584]	; (80013ec <PWMISR+0x288>)
  80011a4:	6013      	str	r3, [r2, #0]
-while((ADC1->SR & b1)==0) ; // wait for conversion to complete
+  while((ADC1->SR & b1)==0) ; // wait for conversion to complete
  80011a6:	bf00      	nop
  80011a8:	4b8c      	ldr	r3, [pc, #560]	; (80013dc <PWMISR+0x278>)
  80011aa:	681b      	ldr	r3, [r3, #0]
@@ -2629,7 +2633,7 @@ while((ADC1->SR & b1)==0) ; // wait for conversion to complete
  80011ae:	f003 0302 	and.w	r3, r3, #2
  80011b2:	2b00      	cmp	r3, #0
  80011b4:	d0f8      	beq.n	80011a8 <PWMISR+0x44>
-bemfsample= ADC1->DR;
+  bemfsample= ADC1->DR;
  80011b6:	4b89      	ldr	r3, [pc, #548]	; (80013dc <PWMISR+0x278>)
  80011b8:	681b      	ldr	r3, [r3, #0]
  80011ba:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
@@ -2637,49 +2641,49 @@ bemfsample= ADC1->DR;
  80011be:	4b8c      	ldr	r3, [pc, #560]	; (80013f0 <PWMISR+0x28c>)
  80011c0:	801a      	strh	r2, [r3, #0]
 
-// sk DAC->DHR12R2 = bemfsample;
-// sk DAC->SWTRIGR=0x00000003;
+  // sk DAC->DHR12R2 = bemfsample;
+  // sk DAC->SWTRIGR=0x00000003;
 
 
-if(autostep)
+  if(autostep)
  80011c2:	4b8c      	ldr	r3, [pc, #560]	; (80013f4 <PWMISR+0x290>)
  80011c4:	781b      	ldrb	r3, [r3, #0]
  80011c6:	2b00      	cmp	r3, #0
  80011c8:	d029      	beq.n	800121e <PWMISR+0xba>
-{
-commcounter++;
+    {
+      commcounter++;
  80011ca:	4b8b      	ldr	r3, [pc, #556]	; (80013f8 <PWMISR+0x294>)
  80011cc:	881b      	ldrh	r3, [r3, #0]
  80011ce:	3301      	adds	r3, #1
  80011d0:	b29a      	uxth	r2, r3
  80011d2:	4b89      	ldr	r3, [pc, #548]	; (80013f8 <PWMISR+0x294>)
  80011d4:	801a      	strh	r2, [r3, #0]
-  if(commcounter>step)
+      if(commcounter>step)
  80011d6:	4b88      	ldr	r3, [pc, #544]	; (80013f8 <PWMISR+0x294>)
  80011d8:	881a      	ldrh	r2, [r3, #0]
  80011da:	4b88      	ldr	r3, [pc, #544]	; (80013fc <PWMISR+0x298>)
  80011dc:	881b      	ldrh	r3, [r3, #0]
  80011de:	429a      	cmp	r2, r3
  80011e0:	d91d      	bls.n	800121e <PWMISR+0xba>
-  {
-  commcounter=0;
+	{
+	  commcounter=0;
  80011e2:	4b85      	ldr	r3, [pc, #532]	; (80013f8 <PWMISR+0x294>)
  80011e4:	2200      	movs	r2, #0
  80011e6:	801a      	strh	r2, [r3, #0]
-  phase++;
+	  phase++;
  80011e8:	4b85      	ldr	r3, [pc, #532]	; (8001400 <PWMISR+0x29c>)
  80011ea:	781b      	ldrb	r3, [r3, #0]
  80011ec:	3301      	adds	r3, #1
  80011ee:	b2da      	uxtb	r2, r3
  80011f0:	4b83      	ldr	r3, [pc, #524]	; (8001400 <PWMISR+0x29c>)
  80011f2:	701a      	strb	r2, [r3, #0]
-position++;
+	  position++;
  80011f4:	4b83      	ldr	r3, [pc, #524]	; (8001404 <PWMISR+0x2a0>)
  80011f6:	681b      	ldr	r3, [r3, #0]
  80011f8:	3301      	adds	r3, #1
  80011fa:	4a82      	ldr	r2, [pc, #520]	; (8001404 <PWMISR+0x2a0>)
  80011fc:	6013      	str	r3, [r2, #0]
-  if(phase>5) phase=0;
+	  if(phase>5) phase=0;
  80011fe:	4b80      	ldr	r3, [pc, #512]	; (8001400 <PWMISR+0x29c>)
  8001200:	781b      	ldrb	r3, [r3, #0]
  8001202:	2b05      	cmp	r3, #5
@@ -2687,7 +2691,7 @@ position++;
  8001206:	4b7e      	ldr	r3, [pc, #504]	; (8001400 <PWMISR+0x29c>)
  8001208:	2200      	movs	r2, #0
  800120a:	701a      	strb	r2, [r3, #0]
-  TIM1->CCER = ccermask[phase]; // commutate bridge from table
+	  TIM1->CCER = ccermask[phase]; // commutate bridge from table
  800120c:	4b7c      	ldr	r3, [pc, #496]	; (8001400 <PWMISR+0x29c>)
  800120e:	781b      	ldrb	r3, [r3, #0]
  8001210:	4619      	mov	r1, r3
@@ -2697,11 +2701,11 @@ position++;
  8001218:	f832 2011 	ldrh.w	r2, [r2, r1, lsl #1]
  800121c:	841a      	strh	r2, [r3, #32]
 
-  }
-} // end of if(autostep)
+	}
+    } // end of if(autostep)
 
 
-if(run==0) startstate=0;
+  if(run==0) startstate=0;
  800121e:	4b7c      	ldr	r3, [pc, #496]	; (8001410 <PWMISR+0x2ac>)
  8001220:	781b      	ldrb	r3, [r3, #0]
  8001222:	2b00      	cmp	r3, #0
@@ -2710,7 +2714,7 @@ if(run==0) startstate=0;
  8001228:	2200      	movs	r2, #0
  800122a:	701a      	strb	r2, [r3, #0]
 
-switch(startstate)
+  switch(startstate)
  800122c:	4b79      	ldr	r3, [pc, #484]	; (8001414 <PWMISR+0x2b0>)
  800122e:	781b      	ldrb	r3, [r3, #0]
  8001230:	2b64      	cmp	r3, #100	; 0x64
@@ -2743,50 +2747,50 @@ switch(startstate)
  8001270:	2b96      	cmp	r3, #150	; 0x96
  8001272:	f000 8132 	beq.w	80014da <PWMISR+0x376>
  8001276:	e18b      	b.n	8001590 <PWMISR+0x42c>
-{
-case 0:
-TIM1->CCER = alloff;
+  {
+    case 0:
+      TIM1->CCER = alloff;
  8001278:	4b63      	ldr	r3, [pc, #396]	; (8001408 <PWMISR+0x2a4>)
  800127a:	681b      	ldr	r3, [r3, #0]
  800127c:	f643 0288 	movw	r2, #14472	; 0x3888
  8001280:	841a      	strh	r2, [r3, #32]
-if(run)
+      if(run)
  8001282:	4b63      	ldr	r3, [pc, #396]	; (8001410 <PWMISR+0x2ac>)
  8001284:	781b      	ldrb	r3, [r3, #0]
  8001286:	2b00      	cmp	r3, #0
  8001288:	f000 8171 	beq.w	800156e <PWMISR+0x40a>
-{
-motorstartinit();
+	{
+	  motorstartinit();
  800128c:	f000 fa18 	bl	80016c0 <motorstartinit>
-startstate=5;
+	  startstate=5;
  8001290:	4b60      	ldr	r3, [pc, #384]	; (8001414 <PWMISR+0x2b0>)
  8001292:	2205      	movs	r2, #5
  8001294:	701a      	strb	r2, [r3, #0]
-}
-break;
+	}
+      break;
  8001296:	e16a      	b.n	800156e <PWMISR+0x40a>
 
-case 5: // setup alignment
-TIM1->CCR1= alignmentdc;
+    case 5: // setup alignment
+      TIM1->CCR1= alignmentdc;
  8001298:	4b5b      	ldr	r3, [pc, #364]	; (8001408 <PWMISR+0x2a4>)
  800129a:	681b      	ldr	r3, [r3, #0]
  800129c:	2264      	movs	r2, #100	; 0x64
  800129e:	869a      	strh	r2, [r3, #52]	; 0x34
-TIM1->CCR2= alignmentdc;
+      TIM1->CCR2= alignmentdc;
  80012a0:	4b59      	ldr	r3, [pc, #356]	; (8001408 <PWMISR+0x2a4>)
  80012a2:	681b      	ldr	r3, [r3, #0]
  80012a4:	2264      	movs	r2, #100	; 0x64
  80012a6:	871a      	strh	r2, [r3, #56]	; 0x38
-TIM1->CCR3= alignmentdc;
+      TIM1->CCR3= alignmentdc;
  80012a8:	4b57      	ldr	r3, [pc, #348]	; (8001408 <PWMISR+0x2a4>)
  80012aa:	681b      	ldr	r3, [r3, #0]
  80012ac:	2264      	movs	r2, #100	; 0x64
  80012ae:	879a      	strh	r2, [r3, #60]	; 0x3c
-phase=0;
+      phase=0;
  80012b0:	4b53      	ldr	r3, [pc, #332]	; (8001400 <PWMISR+0x29c>)
  80012b2:	2200      	movs	r2, #0
  80012b4:	701a      	strb	r2, [r3, #0]
-TIM1->CCER = ccermask[phase]; // commutate bridge from table
+      TIM1->CCER = ccermask[phase]; // commutate bridge from table
  80012b6:	4b52      	ldr	r3, [pc, #328]	; (8001400 <PWMISR+0x29c>)
  80012b8:	781b      	ldrb	r3, [r3, #0]
  80012ba:	4619      	mov	r1, r3
@@ -2795,108 +2799,108 @@ TIM1->CCER = ccermask[phase]; // commutate bridge from table
  80012c0:	4a52      	ldr	r2, [pc, #328]	; (800140c <PWMISR+0x2a8>)
  80012c2:	f832 2011 	ldrh.w	r2, [r2, r1, lsl #1]
  80012c6:	841a      	strh	r2, [r3, #32]
-alignmentcounter=0;
+      alignmentcounter=0;
  80012c8:	4b46      	ldr	r3, [pc, #280]	; (80013e4 <PWMISR+0x280>)
  80012ca:	2200      	movs	r2, #0
  80012cc:	601a      	str	r2, [r3, #0]
-startstate=10;
+      startstate=10;
  80012ce:	4b51      	ldr	r3, [pc, #324]	; (8001414 <PWMISR+0x2b0>)
  80012d0:	220a      	movs	r2, #10
  80012d2:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80012d4:	e15c      	b.n	8001590 <PWMISR+0x42c>
 
-case 10: // timing out alignment
-  if(alignmentcounter>alignmenttime)
+    case 10: // timing out alignment
+      if(alignmentcounter>alignmenttime)
  80012d6:	4b43      	ldr	r3, [pc, #268]	; (80013e4 <PWMISR+0x280>)
  80012d8:	681b      	ldr	r3, [r3, #0]
  80012da:	f242 7210 	movw	r2, #10000	; 0x2710
  80012de:	4293      	cmp	r3, r2
  80012e0:	f240 8147 	bls.w	8001572 <PWMISR+0x40e>
-  {
-  rampspeed=1;
+	{
+	  rampspeed=1;
  80012e4:	4b4c      	ldr	r3, [pc, #304]	; (8001418 <PWMISR+0x2b4>)
  80012e6:	2201      	movs	r2, #1
  80012e8:	601a      	str	r2, [r3, #0]
-  commcounter=0;
+	  commcounter=0;
  80012ea:	4b43      	ldr	r3, [pc, #268]	; (80013f8 <PWMISR+0x294>)
  80012ec:	2200      	movs	r2, #0
  80012ee:	801a      	strh	r2, [r3, #0]
-  autostep=255;
+	  autostep=255;
  80012f0:	4b40      	ldr	r3, [pc, #256]	; (80013f4 <PWMISR+0x290>)
  80012f2:	22ff      	movs	r2, #255	; 0xff
  80012f4:	701a      	strb	r2, [r3, #0]
-  TIM1->CCR1= rampupdc;
+	  TIM1->CCR1= rampupdc;
  80012f6:	4b44      	ldr	r3, [pc, #272]	; (8001408 <PWMISR+0x2a4>)
  80012f8:	681b      	ldr	r3, [r3, #0]
  80012fa:	f44f 72fa 	mov.w	r2, #500	; 0x1f4
  80012fe:	869a      	strh	r2, [r3, #52]	; 0x34
-  TIM1->CCR2= rampupdc;
+	  TIM1->CCR2= rampupdc;
  8001300:	4b41      	ldr	r3, [pc, #260]	; (8001408 <PWMISR+0x2a4>)
  8001302:	681b      	ldr	r3, [r3, #0]
  8001304:	f44f 72fa 	mov.w	r2, #500	; 0x1f4
  8001308:	871a      	strh	r2, [r3, #56]	; 0x38
-  TIM1->CCR3= rampupdc;
+	  TIM1->CCR3= rampupdc;
  800130a:	4b3f      	ldr	r3, [pc, #252]	; (8001408 <PWMISR+0x2a4>)
  800130c:	681b      	ldr	r3, [r3, #0]
  800130e:	f44f 72fa 	mov.w	r2, #500	; 0x1f4
  8001312:	879a      	strh	r2, [r3, #60]	; 0x3c
-  startstate=20;
+	  startstate=20;
  8001314:	4b3f      	ldr	r3, [pc, #252]	; (8001414 <PWMISR+0x2b0>)
  8001316:	2214      	movs	r2, #20
  8001318:	701a      	strb	r2, [r3, #0]
-  }
-break;
+	}
+      break;
  800131a:	e12a      	b.n	8001572 <PWMISR+0x40e>
 
-case 20:
-rampspeed = rampspeed+rampuprate;
+    case 20:
+      rampspeed = rampspeed+rampuprate;
  800131c:	4b3e      	ldr	r3, [pc, #248]	; (8001418 <PWMISR+0x2b4>)
  800131e:	681b      	ldr	r3, [r3, #0]
  8001320:	f203 53dc 	addw	r3, r3, #1500	; 0x5dc
  8001324:	4a3c      	ldr	r2, [pc, #240]	; (8001418 <PWMISR+0x2b4>)
  8001326:	6013      	str	r3, [r2, #0]
-long0 = 4000000000;
+      long0 = 4000000000;
  8001328:	4b3c      	ldr	r3, [pc, #240]	; (800141c <PWMISR+0x2b8>)
  800132a:	607b      	str	r3, [r7, #4]
-long0 = long0/rampspeed;
+      long0 = long0/rampspeed;
  800132c:	4b3a      	ldr	r3, [pc, #232]	; (8001418 <PWMISR+0x2b4>)
  800132e:	681b      	ldr	r3, [r3, #0]
  8001330:	687a      	ldr	r2, [r7, #4]
  8001332:	fbb2 f3f3 	udiv	r3, r2, r3
  8001336:	607b      	str	r3, [r7, #4]
-if(long0>30000) long0=30000;
+      if(long0>30000) long0=30000;
  8001338:	687b      	ldr	r3, [r7, #4]
  800133a:	f247 5230 	movw	r2, #30000	; 0x7530
  800133e:	4293      	cmp	r3, r2
  8001340:	d902      	bls.n	8001348 <PWMISR+0x1e4>
  8001342:	f247 5330 	movw	r3, #30000	; 0x7530
  8001346:	607b      	str	r3, [r7, #4]
-step=long0;
+      step=long0;
  8001348:	687b      	ldr	r3, [r7, #4]
  800134a:	b29a      	uxth	r2, r3
  800134c:	4b2b      	ldr	r3, [pc, #172]	; (80013fc <PWMISR+0x298>)
  800134e:	801a      	strh	r2, [r3, #0]
-  if(step<=minstep)
+      if(step<=minstep)
  8001350:	4b2a      	ldr	r3, [pc, #168]	; (80013fc <PWMISR+0x298>)
  8001352:	881b      	ldrh	r3, [r3, #0]
  8001354:	f5b3 7f1a 	cmp.w	r3, #616	; 0x268
  8001358:	f080 810d 	bcs.w	8001576 <PWMISR+0x412>
-  {
-  holdcounter=0;
+	{
+	  holdcounter=0;
  800135c:	4b22      	ldr	r3, [pc, #136]	; (80013e8 <PWMISR+0x284>)
  800135e:	2200      	movs	r2, #0
  8001360:	601a      	str	r2, [r3, #0]
-  startstate=100;
+	  startstate=100;
  8001362:	4b2c      	ldr	r3, [pc, #176]	; (8001414 <PWMISR+0x2b0>)
  8001364:	2264      	movs	r2, #100	; 0x64
  8001366:	701a      	strb	r2, [r3, #0]
-  }
-break;
+	}
+      break;
  8001368:	e105      	b.n	8001576 <PWMISR+0x412>
 
-case 100: // wait for hold time
-if(holdcounter>holdtime) startstate=110; 
+    case 100: // wait for hold time
+      if(holdcounter>holdtime) startstate=110;
  800136a:	4b1f      	ldr	r3, [pc, #124]	; (80013e8 <PWMISR+0x284>)
  800136c:	681b      	ldr	r3, [r3, #0]
  800136e:	f5b3 6ffa 	cmp.w	r3, #2000	; 0x7d0
@@ -2904,11 +2908,11 @@ if(holdcounter>holdtime) startstate=110;
  8001376:	4b27      	ldr	r3, [pc, #156]	; (8001414 <PWMISR+0x2b0>)
  8001378:	226e      	movs	r2, #110	; 0x6e
  800137a:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  800137c:	e0fd      	b.n	800157a <PWMISR+0x416>
 
-case 110: // wait to get into phase 5
-if(phase==5) startstate=120;
+    case 110: // wait to get into phase 5
+      if(phase==5) startstate=120;
  800137e:	4b20      	ldr	r3, [pc, #128]	; (8001400 <PWMISR+0x29c>)
  8001380:	781b      	ldrb	r3, [r3, #0]
  8001382:	2b05      	cmp	r3, #5
@@ -2916,21 +2920,21 @@ if(phase==5) startstate=120;
  8001388:	4b22      	ldr	r3, [pc, #136]	; (8001414 <PWMISR+0x2b0>)
  800138a:	2278      	movs	r2, #120	; 0x78
  800138c:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  800138e:	e0f6      	b.n	800157e <PWMISR+0x41a>
 
-case 120: // wait for leading edge of phase 0 (commutation)
-if(phase==0)
+    case 120: // wait for leading edge of phase 0 (commutation)
+      if(phase==0)
  8001390:	4b1b      	ldr	r3, [pc, #108]	; (8001400 <PWMISR+0x29c>)
  8001392:	781b      	ldrb	r3, [r3, #0]
  8001394:	2b00      	cmp	r3, #0
  8001396:	f040 80f4 	bne.w	8001582 <PWMISR+0x41e>
-{
-demagcounter=0;
+	{
+	  demagcounter=0;
  800139a:	4b21      	ldr	r3, [pc, #132]	; (8001420 <PWMISR+0x2bc>)
  800139c:	2200      	movs	r2, #0
  800139e:	801a      	strh	r2, [r3, #0]
-demagthreshold = (step*demagallowance)>>8;
+	  demagthreshold = (step*demagallowance)>>8;
  80013a0:	4b16      	ldr	r3, [pc, #88]	; (80013fc <PWMISR+0x298>)
  80013a2:	881b      	ldrh	r3, [r3, #0]
  80013a4:	019b      	lsls	r3, r3, #6
@@ -2938,36 +2942,36 @@ demagthreshold = (step*demagallowance)>>8;
  80013a8:	b29a      	uxth	r2, r3
  80013aa:	4b1e      	ldr	r3, [pc, #120]	; (8001424 <PWMISR+0x2c0>)
  80013ac:	801a      	strh	r2, [r3, #0]
-startstate=130;
+	  startstate=130;
  80013ae:	4b19      	ldr	r3, [pc, #100]	; (8001414 <PWMISR+0x2b0>)
  80013b0:	2282      	movs	r2, #130	; 0x82
  80013b2:	701a      	strb	r2, [r3, #0]
-}
-break;
+	}
+      break;
  80013b4:	e0e5      	b.n	8001582 <PWMISR+0x41e>
 
-case 130: // wait out demag time
-demagcounter++;
+    case 130: // wait out demag time
+      demagcounter++;
  80013b6:	4b1a      	ldr	r3, [pc, #104]	; (8001420 <PWMISR+0x2bc>)
  80013b8:	881b      	ldrh	r3, [r3, #0]
  80013ba:	3301      	adds	r3, #1
  80013bc:	b29a      	uxth	r2, r3
  80013be:	4b18      	ldr	r3, [pc, #96]	; (8001420 <PWMISR+0x2bc>)
  80013c0:	801a      	strh	r2, [r3, #0]
-  if(demagcounter>demagthreshold)
+      if(demagcounter>demagthreshold)
  80013c2:	4b17      	ldr	r3, [pc, #92]	; (8001420 <PWMISR+0x2bc>)
  80013c4:	881a      	ldrh	r2, [r3, #0]
  80013c6:	4b17      	ldr	r3, [pc, #92]	; (8001424 <PWMISR+0x2c0>)
  80013c8:	881b      	ldrh	r3, [r3, #0]
  80013ca:	429a      	cmp	r2, r3
  80013cc:	f240 80db 	bls.w	8001586 <PWMISR+0x422>
-  {
-  startstate=140; 
+	{
+	  startstate=140;
  80013d0:	4b10      	ldr	r3, [pc, #64]	; (8001414 <PWMISR+0x2b0>)
  80013d2:	228c      	movs	r2, #140	; 0x8c
  80013d4:	701a      	strb	r2, [r3, #0]
-  }
-break;
+	}
+      break;
  80013d6:	e0d6      	b.n	8001586 <PWMISR+0x422>
  80013d8:	20000110 	.word	0x20000110
  80013dc:	2000009c 	.word	0x2000009c
@@ -2990,20 +2994,20 @@ break;
  8001420:	200000d4 	.word	0x200000d4
  8001424:	200000ec 	.word	0x200000ec
 
-case 140: // looking for zero crossing of bemf
-if(risingedge)
+    case 140: // looking for zero crossing of bemf
+      if(risingedge)
  8001428:	4b8c      	ldr	r3, [pc, #560]	; (800165c <PWMISR+0x4f8>)
  800142a:	781b      	ldrb	r3, [r3, #0]
  800142c:	2b00      	cmp	r3, #0
  800142e:	d02a      	beq.n	8001486 <PWMISR+0x322>
-{
-  if(bemfsample>zcthreshold)
+	{
+	  if(bemfsample>zcthreshold)
  8001430:	4b8b      	ldr	r3, [pc, #556]	; (8001660 <PWMISR+0x4fc>)
  8001432:	881b      	ldrh	r3, [r3, #0]
  8001434:	2bc8      	cmp	r3, #200	; 0xc8
  8001436:	f240 80a8 	bls.w	800158a <PWMISR+0x426>
-  {
-  if(zcfound) step = zccounter;
+	    {
+	      if(zcfound) step = zccounter;
  800143a:	4b8a      	ldr	r3, [pc, #552]	; (8001664 <PWMISR+0x500>)
  800143c:	781b      	ldrb	r3, [r3, #0]
  800143e:	2b00      	cmp	r3, #0
@@ -3012,7 +3016,7 @@ if(risingedge)
  8001444:	881a      	ldrh	r2, [r3, #0]
  8001446:	4b89      	ldr	r3, [pc, #548]	; (800166c <PWMISR+0x508>)
  8001448:	801a      	strh	r2, [r3, #0]
-  commthreshold = (step*risingdelay)>>8;
+	      commthreshold = (step*risingdelay)>>8;
  800144a:	4b88      	ldr	r3, [pc, #544]	; (800166c <PWMISR+0x508>)
  800144c:	881b      	ldrh	r3, [r3, #0]
  800144e:	461a      	mov	r2, r3
@@ -3023,43 +3027,43 @@ if(risingedge)
  800145a:	b29a      	uxth	r2, r3
  800145c:	4b85      	ldr	r3, [pc, #532]	; (8001674 <PWMISR+0x510>)
  800145e:	801a      	strh	r2, [r3, #0]
-  zccounter=0;
+	      zccounter=0;
  8001460:	4b81      	ldr	r3, [pc, #516]	; (8001668 <PWMISR+0x504>)
  8001462:	2200      	movs	r2, #0
  8001464:	801a      	strh	r2, [r3, #0]
-  commcounter=0;
+	      commcounter=0;
  8001466:	4b84      	ldr	r3, [pc, #528]	; (8001678 <PWMISR+0x514>)
  8001468:	2200      	movs	r2, #0
  800146a:	801a      	strh	r2, [r3, #0]
-  startstate=150;
+	      startstate=150;
  800146c:	4b83      	ldr	r3, [pc, #524]	; (800167c <PWMISR+0x518>)
  800146e:	2296      	movs	r2, #150	; 0x96
  8001470:	701a      	strb	r2, [r3, #0]
-  risingedge=0;
+	      risingedge=0;
  8001472:	4b7a      	ldr	r3, [pc, #488]	; (800165c <PWMISR+0x4f8>)
  8001474:	2200      	movs	r2, #0
  8001476:	701a      	strb	r2, [r3, #0]
-  zcfound=255;
+	      zcfound=255;
  8001478:	4b7a      	ldr	r3, [pc, #488]	; (8001664 <PWMISR+0x500>)
  800147a:	22ff      	movs	r2, #255	; 0xff
  800147c:	701a      	strb	r2, [r3, #0]
-  autostep=0;
+	      autostep=0;
  800147e:	4b80      	ldr	r3, [pc, #512]	; (8001680 <PWMISR+0x51c>)
  8001480:	2200      	movs	r2, #0
  8001482:	701a      	strb	r2, [r3, #0]
-  risingedge = 255;
-  zcfound=255;
-  autostep=0;
-  }
-}
-break;
+	      risingedge = 255;
+	      zcfound=255;
+	      autostep=0;
+	    }
+	}
+      break;
  8001484:	e081      	b.n	800158a <PWMISR+0x426>
-  if(bemfsample<zcthreshold)
+	  if(bemfsample<zcthreshold)
  8001486:	4b76      	ldr	r3, [pc, #472]	; (8001660 <PWMISR+0x4fc>)
  8001488:	881b      	ldrh	r3, [r3, #0]
  800148a:	2bc7      	cmp	r3, #199	; 0xc7
  800148c:	d87d      	bhi.n	800158a <PWMISR+0x426>
-  if(zcfound) step = zccounter;
+	      if(zcfound) step = zccounter;
  800148e:	4b75      	ldr	r3, [pc, #468]	; (8001664 <PWMISR+0x500>)
  8001490:	781b      	ldrb	r3, [r3, #0]
  8001492:	2b00      	cmp	r3, #0
@@ -3068,7 +3072,7 @@ break;
  8001498:	881a      	ldrh	r2, [r3, #0]
  800149a:	4b74      	ldr	r3, [pc, #464]	; (800166c <PWMISR+0x508>)
  800149c:	801a      	strh	r2, [r3, #0]
-  commthreshold = (step*fallingdelay)>>8;
+	      commthreshold = (step*fallingdelay)>>8;
  800149e:	4b73      	ldr	r3, [pc, #460]	; (800166c <PWMISR+0x508>)
  80014a0:	881b      	ldrh	r3, [r3, #0]
  80014a2:	461a      	mov	r2, r3
@@ -3079,63 +3083,63 @@ break;
  80014ae:	b29a      	uxth	r2, r3
  80014b0:	4b70      	ldr	r3, [pc, #448]	; (8001674 <PWMISR+0x510>)
  80014b2:	801a      	strh	r2, [r3, #0]
-  zccounter=0;
+	      zccounter=0;
  80014b4:	4b6c      	ldr	r3, [pc, #432]	; (8001668 <PWMISR+0x504>)
  80014b6:	2200      	movs	r2, #0
  80014b8:	801a      	strh	r2, [r3, #0]
-  commcounter=0;
+	      commcounter=0;
  80014ba:	4b6f      	ldr	r3, [pc, #444]	; (8001678 <PWMISR+0x514>)
  80014bc:	2200      	movs	r2, #0
  80014be:	801a      	strh	r2, [r3, #0]
-  startstate=150;
+	      startstate=150;
  80014c0:	4b6e      	ldr	r3, [pc, #440]	; (800167c <PWMISR+0x518>)
  80014c2:	2296      	movs	r2, #150	; 0x96
  80014c4:	701a      	strb	r2, [r3, #0]
-  risingedge = 255;
+	      risingedge = 255;
  80014c6:	4b65      	ldr	r3, [pc, #404]	; (800165c <PWMISR+0x4f8>)
  80014c8:	22ff      	movs	r2, #255	; 0xff
  80014ca:	701a      	strb	r2, [r3, #0]
-  zcfound=255;
+	      zcfound=255;
  80014cc:	4b65      	ldr	r3, [pc, #404]	; (8001664 <PWMISR+0x500>)
  80014ce:	22ff      	movs	r2, #255	; 0xff
  80014d0:	701a      	strb	r2, [r3, #0]
-  autostep=0;
+	      autostep=0;
  80014d2:	4b6b      	ldr	r3, [pc, #428]	; (8001680 <PWMISR+0x51c>)
  80014d4:	2200      	movs	r2, #0
  80014d6:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80014d8:	e057      	b.n	800158a <PWMISR+0x426>
 
-case 150:  // wait out commutation delay
-commcounter++;
+    case 150:  // wait out commutation delay
+      commcounter++;
  80014da:	4b67      	ldr	r3, [pc, #412]	; (8001678 <PWMISR+0x514>)
  80014dc:	881b      	ldrh	r3, [r3, #0]
  80014de:	3301      	adds	r3, #1
  80014e0:	b29a      	uxth	r2, r3
  80014e2:	4b65      	ldr	r3, [pc, #404]	; (8001678 <PWMISR+0x514>)
  80014e4:	801a      	strh	r2, [r3, #0]
-  if(commcounter>commthreshold)
+      if(commcounter>commthreshold)
  80014e6:	4b64      	ldr	r3, [pc, #400]	; (8001678 <PWMISR+0x514>)
  80014e8:	881a      	ldrh	r2, [r3, #0]
  80014ea:	4b62      	ldr	r3, [pc, #392]	; (8001674 <PWMISR+0x510>)
  80014ec:	881b      	ldrh	r3, [r3, #0]
  80014ee:	429a      	cmp	r2, r3
  80014f0:	d94d      	bls.n	800158e <PWMISR+0x42a>
-  {
-  position++;
+	{
+	  position++;
  80014f2:	4b65      	ldr	r3, [pc, #404]	; (8001688 <PWMISR+0x524>)
  80014f4:	681b      	ldr	r3, [r3, #0]
  80014f6:	3301      	adds	r3, #1
  80014f8:	4a63      	ldr	r2, [pc, #396]	; (8001688 <PWMISR+0x524>)
  80014fa:	6013      	str	r3, [r2, #0]
-  phase++; // commutate
+	  phase++; // commutate
  80014fc:	4b63      	ldr	r3, [pc, #396]	; (800168c <PWMISR+0x528>)
  80014fe:	781b      	ldrb	r3, [r3, #0]
  8001500:	3301      	adds	r3, #1
  8001502:	b2da      	uxtb	r2, r3
  8001504:	4b61      	ldr	r3, [pc, #388]	; (800168c <PWMISR+0x528>)
  8001506:	701a      	strb	r2, [r3, #0]
-  if(phase>5) phase=0;
+	  if(phase>5) phase=0;
  8001508:	4b60      	ldr	r3, [pc, #384]	; (800168c <PWMISR+0x528>)
  800150a:	781b      	ldrb	r3, [r3, #0]
  800150c:	2b05      	cmp	r3, #5
@@ -3143,7 +3147,7 @@ commcounter++;
  8001510:	4b5e      	ldr	r3, [pc, #376]	; (800168c <PWMISR+0x528>)
  8001512:	2200      	movs	r2, #0
  8001514:	701a      	strb	r2, [r3, #0]
-  TIM1->CCER = ccermask[phase]; // commutate bridge from fwd table
+	  TIM1->CCER = ccermask[phase]; // commutate bridge from fwd table
  8001516:	4b5d      	ldr	r3, [pc, #372]	; (800168c <PWMISR+0x528>)
  8001518:	781b      	ldrb	r3, [r3, #0]
  800151a:	4619      	mov	r1, r3
@@ -3153,14 +3157,14 @@ commcounter++;
  8001522:	f832 2011 	ldrh.w	r2, [r2, r1, lsl #1]
  8001526:	841a      	strh	r2, [r3, #32]
 
-  // sk DAC->DHR12R1 = phase*810;
-  // sk DAC->SWTRIGR=0x00000003;
+	  // sk DAC->DHR12R1 = phase*810;
+	  // sk DAC->SWTRIGR=0x00000003;
 
-  demagcounter=0;
+	  demagcounter=0;
  8001528:	4b5b      	ldr	r3, [pc, #364]	; (8001698 <PWMISR+0x534>)
  800152a:	2200      	movs	r2, #0
  800152c:	801a      	strh	r2, [r3, #0]
-  demagthreshold = (step*demagallowance)>>8;
+	  demagthreshold = (step*demagallowance)>>8;
  800152e:	4b4f      	ldr	r3, [pc, #316]	; (800166c <PWMISR+0x508>)
  8001530:	881b      	ldrh	r3, [r3, #0]
  8001532:	019b      	lsls	r3, r3, #6
@@ -3168,13 +3172,13 @@ commcounter++;
  8001536:	b29a      	uxth	r2, r3
  8001538:	4b58      	ldr	r3, [pc, #352]	; (800169c <PWMISR+0x538>)
  800153a:	801a      	strh	r2, [r3, #0]
-if(phase==0)
+	  if(phase==0)
  800153c:	4b53      	ldr	r3, [pc, #332]	; (800168c <PWMISR+0x528>)
  800153e:	781b      	ldrb	r3, [r3, #0]
  8001540:	2b00      	cmp	r3, #0
  8001542:	d110      	bne.n	8001566 <PWMISR+0x402>
-{
-ifbave = (ifbsum<<2) / ifbcount;
+	    {
+	      ifbave = (ifbsum<<2) / ifbcount;
  8001544:	4b56      	ldr	r3, [pc, #344]	; (80016a0 <PWMISR+0x53c>)
  8001546:	681b      	ldr	r3, [r3, #0]
  8001548:	009b      	lsls	r3, r3, #2
@@ -3184,52 +3188,52 @@ ifbave = (ifbsum<<2) / ifbcount;
  8001554:	b21a      	sxth	r2, r3
  8001556:	4b54      	ldr	r3, [pc, #336]	; (80016a8 <PWMISR+0x544>)
  8001558:	801a      	strh	r2, [r3, #0]
-ifbcount=0;
+	      ifbcount=0;
  800155a:	4b52      	ldr	r3, [pc, #328]	; (80016a4 <PWMISR+0x540>)
  800155c:	2200      	movs	r2, #0
  800155e:	801a      	strh	r2, [r3, #0]
-ifbsum=0;
+	      ifbsum=0;
  8001560:	4b4f      	ldr	r3, [pc, #316]	; (80016a0 <PWMISR+0x53c>)
  8001562:	2200      	movs	r2, #0
  8001564:	601a      	str	r2, [r3, #0]
-}
-  startstate=130;  // go back to wait out demag
+	    }
+	  startstate=130;  // go back to wait out demag
  8001566:	4b45      	ldr	r3, [pc, #276]	; (800167c <PWMISR+0x518>)
  8001568:	2282      	movs	r2, #130	; 0x82
  800156a:	701a      	strb	r2, [r3, #0]
-  }
-break;
+	}
+      break;
  800156c:	e00f      	b.n	800158e <PWMISR+0x42a>
-break;
+      break;
  800156e:	bf00      	nop
  8001570:	e00e      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  8001572:	bf00      	nop
  8001574:	e00c      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  8001576:	bf00      	nop
  8001578:	e00a      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  800157a:	bf00      	nop
  800157c:	e008      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  800157e:	bf00      	nop
  8001580:	e006      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  8001582:	bf00      	nop
  8001584:	e004      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  8001586:	bf00      	nop
  8001588:	e002      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  800158a:	bf00      	nop
  800158c:	e000      	b.n	8001590 <PWMISR+0x42c>
-break;
+      break;
  800158e:	bf00      	nop
-} // end of startstate state machine
+  } // end of startstate state machine
 
 
-switch(phase)
+  switch(phase)
  8001590:	4b3e      	ldr	r3, [pc, #248]	; (800168c <PWMISR+0x528>)
  8001592:	781b      	ldrb	r3, [r3, #0]
  8001594:	2b05      	cmp	r3, #5
@@ -3243,70 +3247,70 @@ switch(phase)
  80015ac:	080015d1 	.word	0x080015d1
  80015b0:	080015d9 	.word	0x080015d9
  80015b4:	080015e1 	.word	0x080015e1
-{
-case 0: // ab
-bemfchannel=8; // read phase c
+  {
+    case 0: // ab
+      bemfchannel=8; // read phase c
  80015b8:	4b3c      	ldr	r3, [pc, #240]	; (80016ac <PWMISR+0x548>)
  80015ba:	2208      	movs	r2, #8
  80015bc:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80015be:	e013      	b.n	80015e8 <PWMISR+0x484>
-case 1: // ac
-bemfchannel=7; // read phase b
+    case 1: // ac
+      bemfchannel=7; // read phase b
  80015c0:	4b3a      	ldr	r3, [pc, #232]	; (80016ac <PWMISR+0x548>)
  80015c2:	2207      	movs	r2, #7
  80015c4:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80015c6:	e00f      	b.n	80015e8 <PWMISR+0x484>
-case 2:  // bc
-bemfchannel=6; // read phase a
+    case 2:  // bc
+      bemfchannel=6; // read phase a
  80015c8:	4b38      	ldr	r3, [pc, #224]	; (80016ac <PWMISR+0x548>)
  80015ca:	2206      	movs	r2, #6
  80015cc:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80015ce:	e00b      	b.n	80015e8 <PWMISR+0x484>
-case 3:  // ba
-bemfchannel=8; // read phase c
+    case 3:  // ba
+      bemfchannel=8; // read phase c
  80015d0:	4b36      	ldr	r3, [pc, #216]	; (80016ac <PWMISR+0x548>)
  80015d2:	2208      	movs	r2, #8
  80015d4:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80015d6:	e007      	b.n	80015e8 <PWMISR+0x484>
-case 4:  // ca
-bemfchannel=7; // read phase b
+    case 4:  // ca
+      bemfchannel=7; // read phase b
  80015d8:	4b34      	ldr	r3, [pc, #208]	; (80016ac <PWMISR+0x548>)
  80015da:	2207      	movs	r2, #7
  80015dc:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80015de:	e003      	b.n	80015e8 <PWMISR+0x484>
-case 5:  // cb
-bemfchannel=6; // read phase a
+    case 5:  // cb
+      bemfchannel=6; // read phase a
  80015e0:	4b32      	ldr	r3, [pc, #200]	; (80016ac <PWMISR+0x548>)
  80015e2:	2206      	movs	r2, #6
  80015e4:	701a      	strb	r2, [r3, #0]
-break;
+      break;
  80015e6:	bf00      	nop
-  
-} // end of phase switch statement
+
+  } // end of phase switch statement
 
 
-ADC1->SQR3=0x00000000; // current sense adc channel
+  ADC1->SQR3=0x00000000; // current sense adc channel
  80015e8:	4b31      	ldr	r3, [pc, #196]	; (80016b0 <PWMISR+0x54c>)
  80015ea:	681b      	ldr	r3, [r3, #0]
  80015ec:	2200      	movs	r2, #0
  80015ee:	635a      	str	r2, [r3, #52]	; 0x34
-ADC1->CR2=0x00000001;  // start ADC conversion of bemf
+  ADC1->CR2=0x00000001;  // start ADC conversion of bemf
  80015f0:	4b2f      	ldr	r3, [pc, #188]	; (80016b0 <PWMISR+0x54c>)
  80015f2:	681b      	ldr	r3, [r3, #0]
  80015f4:	2201      	movs	r2, #1
  80015f6:	609a      	str	r2, [r3, #8]
-globalcounter++;
+  globalcounter++;
  80015f8:	4b2e      	ldr	r3, [pc, #184]	; (80016b4 <PWMISR+0x550>)
  80015fa:	681b      	ldr	r3, [r3, #0]
  80015fc:	3301      	adds	r3, #1
  80015fe:	4a2d      	ldr	r2, [pc, #180]	; (80016b4 <PWMISR+0x550>)
  8001600:	6013      	str	r3, [r2, #0]
-while((ADC1->SR & b1)==0) ; // wait for conversion to complete
+  while((ADC1->SR & b1)==0) ; // wait for conversion to complete
  8001602:	bf00      	nop
  8001604:	4b2a      	ldr	r3, [pc, #168]	; (80016b0 <PWMISR+0x54c>)
  8001606:	681b      	ldr	r3, [r3, #0]
@@ -3314,7 +3318,7 @@ while((ADC1->SR & b1)==0) ; // wait for conversion to complete
  800160a:	f003 0302 	and.w	r3, r3, #2
  800160e:	2b00      	cmp	r3, #0
  8001610:	d0f8      	beq.n	8001604 <PWMISR+0x4a0>
-ifb= ADC1->DR-ifboffset;
+  ifb= ADC1->DR-ifboffset;
  8001612:	4b27      	ldr	r3, [pc, #156]	; (80016b0 <PWMISR+0x54c>)
  8001614:	681b      	ldr	r3, [r3, #0]
  8001616:	6cdb      	ldr	r3, [r3, #76]	; 0x4c
@@ -3326,7 +3330,7 @@ ifb= ADC1->DR-ifboffset;
  8001622:	b21a      	sxth	r2, r3
  8001624:	4b25      	ldr	r3, [pc, #148]	; (80016bc <PWMISR+0x558>)
  8001626:	801a      	strh	r2, [r3, #0]
-ifbsum = ifbsum + ifb;
+  ifbsum = ifbsum + ifb;
  8001628:	4b24      	ldr	r3, [pc, #144]	; (80016bc <PWMISR+0x558>)
  800162a:	f9b3 3000 	ldrsh.w	r3, [r3]
  800162e:	461a      	mov	r2, r3
@@ -3335,7 +3339,7 @@ ifbsum = ifbsum + ifb;
  8001634:	4413      	add	r3, r2
  8001636:	4a1a      	ldr	r2, [pc, #104]	; (80016a0 <PWMISR+0x53c>)
  8001638:	6013      	str	r3, [r2, #0]
-ifbcount++;
+  ifbcount++;
  800163a:	4b1a      	ldr	r3, [pc, #104]	; (80016a4 <PWMISR+0x540>)
  800163c:	f9b3 3000 	ldrsh.w	r3, [r3]
  8001640:	b29b      	uxth	r3, r3
@@ -3352,7 +3356,7 @@ ifbcount++;
  800164e:	681b      	ldr	r3, [r3, #0]
  8001650:	2200      	movs	r2, #0
  8001652:	821a      	strh	r2, [r3, #16]
-  
+
 }
  8001654:	bf00      	nop
  8001656:	3708      	adds	r7, #8
@@ -3391,111 +3395,111 @@ void  motorstartinit(void)
 {
  80016c0:	b480      	push	{r7}
  80016c2:	af00      	add	r7, sp, #0
-TIM1->CCER = alloff;
+  TIM1->CCER = alloff;
  80016c4:	4b40      	ldr	r3, [pc, #256]	; (80017c8 <motorstartinit+0x108>)
  80016c6:	681b      	ldr	r3, [r3, #0]
  80016c8:	f643 0288 	movw	r2, #14472	; 0x3888
  80016cc:	841a      	strh	r2, [r3, #32]
-TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
+  TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
  80016ce:	4b3e      	ldr	r3, [pc, #248]	; (80017c8 <motorstartinit+0x108>)
  80016d0:	681b      	ldr	r3, [r3, #0]
  80016d2:	f649 0210 	movw	r2, #38928	; 0x9810
  80016d6:	f8a3 2044 	strh.w	r2, [r3, #68]	; 0x44
-maxdc=1000;
+  maxdc=1000;
  80016da:	4b3c      	ldr	r3, [pc, #240]	; (80017cc <motorstartinit+0x10c>)
  80016dc:	f44f 727a 	mov.w	r2, #1000	; 0x3e8
  80016e0:	801a      	strh	r2, [r3, #0]
-rpmcmd=500;
+  rpmcmd=500;
  80016e2:	4b3b      	ldr	r3, [pc, #236]	; (80017d0 <motorstartinit+0x110>)
  80016e4:	f44f 72fa 	mov.w	r2, #500	; 0x1f4
  80016e8:	801a      	strh	r2, [r3, #0]
-rpmref=0;
+  rpmref=0;
  80016ea:	4b3a      	ldr	r3, [pc, #232]	; (80017d4 <motorstartinit+0x114>)
  80016ec:	2200      	movs	r2, #0
  80016ee:	801a      	strh	r2, [r3, #0]
-transitioncounter=0;
+  transitioncounter=0;
  80016f0:	4b39      	ldr	r3, [pc, #228]	; (80017d8 <motorstartinit+0x118>)
  80016f2:	2200      	movs	r2, #0
  80016f4:	601a      	str	r2, [r3, #0]
-errorint=0;
+  errorint=0;
  80016f6:	4b39      	ldr	r3, [pc, #228]	; (80017dc <motorstartinit+0x11c>)
  80016f8:	2200      	movs	r2, #0
  80016fa:	601a      	str	r2, [r3, #0]
-position=520000;
+  position=520000;
  80016fc:	4b38      	ldr	r3, [pc, #224]	; (80017e0 <motorstartinit+0x120>)
  80016fe:	4a39      	ldr	r2, [pc, #228]	; (80017e4 <motorstartinit+0x124>)
  8001700:	601a      	str	r2, [r3, #0]
-positionest= position * 4096;
+  positionest= position * 4096;
  8001702:	4b37      	ldr	r3, [pc, #220]	; (80017e0 <motorstartinit+0x120>)
  8001704:	681b      	ldr	r3, [r3, #0]
  8001706:	031b      	lsls	r3, r3, #12
  8001708:	4a37      	ldr	r2, [pc, #220]	; (80017e8 <motorstartinit+0x128>)
  800170a:	6013      	str	r3, [r2, #0]
-speedest=0;
+  speedest=0;
  800170c:	4b37      	ldr	r3, [pc, #220]	; (80017ec <motorstartinit+0x12c>)
  800170e:	2200      	movs	r2, #0
  8001710:	801a      	strh	r2, [r3, #0]
-rpm=0;
+  rpm=0;
  8001712:	4b37      	ldr	r3, [pc, #220]	; (80017f0 <motorstartinit+0x130>)
  8001714:	2200      	movs	r2, #0
  8001716:	801a      	strh	r2, [r3, #0]
-phase = 0;
+  phase = 0;
  8001718:	4b36      	ldr	r3, [pc, #216]	; (80017f4 <motorstartinit+0x134>)
  800171a:	2200      	movs	r2, #0
  800171c:	701a      	strb	r2, [r3, #0]
-holdcounter=0;
+  holdcounter=0;
  800171e:	4b36      	ldr	r3, [pc, #216]	; (80017f8 <motorstartinit+0x138>)
  8001720:	2200      	movs	r2, #0
  8001722:	601a      	str	r2, [r3, #0]
-startstate=0;
+  startstate=0;
  8001724:	4b35      	ldr	r3, [pc, #212]	; (80017fc <motorstartinit+0x13c>)
  8001726:	2200      	movs	r2, #0
  8001728:	701a      	strb	r2, [r3, #0]
-commcounter=0;
+  commcounter=0;
  800172a:	4b35      	ldr	r3, [pc, #212]	; (8001800 <motorstartinit+0x140>)
  800172c:	2200      	movs	r2, #0
  800172e:	801a      	strh	r2, [r3, #0]
-step=3670;
+  step=3670;
  8001730:	4b34      	ldr	r3, [pc, #208]	; (8001804 <motorstartinit+0x144>)
  8001732:	f640 6256 	movw	r2, #3670	; 0xe56
  8001736:	801a      	strh	r2, [r3, #0]
-autostep = 0;
+  autostep = 0;
  8001738:	4b33      	ldr	r3, [pc, #204]	; (8001808 <motorstartinit+0x148>)
  800173a:	2200      	movs	r2, #0
  800173c:	701a      	strb	r2, [r3, #0]
-risingedge = 0;
+  risingedge = 0;
  800173e:	4b33      	ldr	r3, [pc, #204]	; (800180c <motorstartinit+0x14c>)
  8001740:	2200      	movs	r2, #0
  8001742:	701a      	strb	r2, [r3, #0]
-zcfound=0;
+  zcfound=0;
  8001744:	4b32      	ldr	r3, [pc, #200]	; (8001810 <motorstartinit+0x150>)
  8001746:	2200      	movs	r2, #0
  8001748:	701a      	strb	r2, [r3, #0]
-alignmentcounter=0;
+  alignmentcounter=0;
  800174a:	4b32      	ldr	r3, [pc, #200]	; (8001814 <motorstartinit+0x154>)
  800174c:	2200      	movs	r2, #0
  800174e:	601a      	str	r2, [r3, #0]
-rampspeed=1;
+  rampspeed=1;
  8001750:	4b31      	ldr	r3, [pc, #196]	; (8001818 <motorstartinit+0x158>)
  8001752:	2201      	movs	r2, #1
  8001754:	601a      	str	r2, [r3, #0]
-runningdc = 500;
+  runningdc = 500;
  8001756:	4b31      	ldr	r3, [pc, #196]	; (800181c <motorstartinit+0x15c>)
  8001758:	f44f 72fa 	mov.w	r2, #500	; 0x1f4
  800175c:	801a      	strh	r2, [r3, #0]
-commthreshold=0;
+  commthreshold=0;
  800175e:	4b30      	ldr	r3, [pc, #192]	; (8001820 <motorstartinit+0x160>)
  8001760:	2200      	movs	r2, #0
  8001762:	801a      	strh	r2, [r3, #0]
-risingdelay=127;
+  risingdelay=127;
  8001764:	4b2f      	ldr	r3, [pc, #188]	; (8001824 <motorstartinit+0x164>)
  8001766:	227f      	movs	r2, #127	; 0x7f
  8001768:	701a      	strb	r2, [r3, #0]
-fallingdelay=127;
+  fallingdelay=127;
  800176a:	4b2f      	ldr	r3, [pc, #188]	; (8001828 <motorstartinit+0x168>)
  800176c:	227f      	movs	r2, #127	; 0x7f
  800176e:	701a      	strb	r2, [r3, #0]
-ledoff;
+  ledoff;
  8001770:	4b2e      	ldr	r3, [pc, #184]	; (800182c <motorstartinit+0x16c>)
  8001772:	681b      	ldr	r3, [r3, #0]
  8001774:	68da      	ldr	r2, [r3, #12]
@@ -3503,43 +3507,43 @@ ledoff;
  8001778:	681b      	ldr	r3, [r3, #0]
  800177a:	f442 6200 	orr.w	r2, r2, #2048	; 0x800
  800177e:	60da      	str	r2, [r3, #12]
-ledstate=0;
+  ledstate=0;
  8001780:	4b2b      	ldr	r3, [pc, #172]	; (8001830 <motorstartinit+0x170>)
  8001782:	2200      	movs	r2, #0
  8001784:	701a      	strb	r2, [r3, #0]
-flashcount=0;
+  flashcount=0;
  8001786:	4b2b      	ldr	r3, [pc, #172]	; (8001834 <motorstartinit+0x174>)
  8001788:	2200      	movs	r2, #0
  800178a:	701a      	strb	r2, [r3, #0]
-overcurrent=0;
+  overcurrent=0;
  800178c:	4b2a      	ldr	r3, [pc, #168]	; (8001838 <motorstartinit+0x178>)
  800178e:	2200      	movs	r2, #0
  8001790:	701a      	strb	r2, [r3, #0]
-ifb=0;
+  ifb=0;
  8001792:	4b2a      	ldr	r3, [pc, #168]	; (800183c <motorstartinit+0x17c>)
  8001794:	2200      	movs	r2, #0
  8001796:	801a      	strh	r2, [r3, #0]
-overloaddclimit=1200;
+  overloaddclimit=1200;
  8001798:	4b29      	ldr	r3, [pc, #164]	; (8001840 <motorstartinit+0x180>)
  800179a:	f44f 6296 	mov.w	r2, #1200	; 0x4b0
  800179e:	801a      	strh	r2, [r3, #0]
-overloadcounter=0;
+  overloadcounter=0;
  80017a0:	4b28      	ldr	r3, [pc, #160]	; (8001844 <motorstartinit+0x184>)
  80017a2:	2200      	movs	r2, #0
  80017a4:	601a      	str	r2, [r3, #0]
-overloadflag=0;
+  overloadflag=0;
  80017a6:	4b28      	ldr	r3, [pc, #160]	; (8001848 <motorstartinit+0x188>)
  80017a8:	2200      	movs	r2, #0
  80017aa:	701a      	strb	r2, [r3, #0]
-ifbsum=0;
+  ifbsum=0;
  80017ac:	4b27      	ldr	r3, [pc, #156]	; (800184c <motorstartinit+0x18c>)
  80017ae:	2200      	movs	r2, #0
  80017b0:	601a      	str	r2, [r3, #0]
-ifbave=0;
+  ifbave=0;
  80017b2:	4b27      	ldr	r3, [pc, #156]	; (8001850 <motorstartinit+0x190>)
  80017b4:	2200      	movs	r2, #0
  80017b6:	801a      	strh	r2, [r3, #0]
-ifbcount=0;
+  ifbcount=0;
  80017b8:	4b26      	ldr	r3, [pc, #152]	; (8001854 <motorstartinit+0x194>)
  80017ba:	2200      	movs	r2, #0
  80017bc:	801a      	strh	r2, [r3, #0]
@@ -3589,10 +3593,10 @@ ifbcount=0;
  8001854:	200000b6 	.word	0x200000b6
 
 08001858 <assert_failed>:
-*                  - line: assert error line source number
-* Output         : None
-* Return         : None
-*******************************************************************************/
+ *                  - line: assert error line source number
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
 void assert_failed(u8* file, u32 line)
 { 
  8001858:	b480      	push	{r7}
