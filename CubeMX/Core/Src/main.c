@@ -21,6 +21,8 @@ unsigned char startstate;
 unsigned char bemfchannel;
 unsigned char run;
 
+unsigned int phaseTimeCounter;
+
 unsigned short maxdc;
 unsigned short overloaddclimit;
 unsigned short activedclimit;
@@ -139,7 +141,8 @@ int main(void)
   TIM1->ARR=1200;
   TIM1->CR1=0x0001;
   // b12 to enable brk input
-  TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
+  // TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
+  TIM1->BDTR= b15 + b11 + 16;  // Break enable ausgeschaltet (Test only), 2 usec dead time and set MOE
   // note: b15 b7 and b7 are to enable   based current limit
   TIM1->CCMR1= 0x6868 +b15 + b7;
   TIM1->CCMR2= 0x6868 +b7;
@@ -457,10 +460,23 @@ void PWMISR(void)
       TIM1->CCR1= alignmentdc;
       TIM1->CCR2= alignmentdc;
       TIM1->CCR3= alignmentdc;
-      phase=0;
+
+      // phase=0;
+
       TIM1->CCER = ccermask[phase]; // commutate bridge from table
       alignmentcounter=0;
-      startstate=10;
+
+      // startstate=10;
+
+      if (phaseTimeCounter++ > 40)
+      {
+    	  phaseTimeCounter = 0;
+    	  phase++;
+    	  if (phase > 5)
+    	  {
+    		  phase = 0;
+    	  }
+      }
       break;
 
     case 10: // timing out alignment
@@ -613,7 +629,8 @@ void PWMISR(void)
 void  motorstartinit(void)
 {
   TIM1->CCER = alloff;
-  TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
+  // TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
+  TIM1->BDTR= b15 + b11 + 16;  // Break enable ausgeschaltet (Test only), 2 usec dead time and set MOE
   maxdc=1000;
   rpmcmd=500;
   rpmref=0;

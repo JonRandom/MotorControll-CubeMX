@@ -44,12 +44,29 @@
 
 
 
-
+// Advanced-control timers (TIM1 and TIM8) RM0008 Reference Manual S.354
 // add b12 to enable ch4 and b13 to invert ch4
-#define phab b0+b2+b3+b11+b12+b13
-#define phac b0+b2+b3+b7+b12+b13
-#define phbc b3+b4+b6+b7+b12+b13
-#define phba b4+b6+b7+b11+b12+b13
-#define phca b7+b8+b10+b11+b12+b13
-#define phcb b8+b10+b11+b3+b12+b13
-#define alloff b3+b7+b11+b12+b13
+//#define phab b0 + b2+b3 +                       b11    + b12+b13
+//#define phac b0 + b2+b3 +         b7                   + b12+b13
+//#define phbc         b3 + b4 + b6+b7                   + b12+b13
+//#define phba              b4 + b6+b7 +          b11    + b12+b13
+//#define phca                      b7 + b8 + b10+b11    + b12+b13
+//#define phcb         b3 +              b8 + b10+b11    + b12+b13
+//#define alloff       b3 +         b7 +          b11    + b12+b13
+
+//Keine PWM mehr auf der Lowside
+//#define phab b0 +    b3 +                       b11    + b12+b13
+//#define phac b0 +    b3 +         b7                   + b12+b13
+//#define phbc         b3 + b4 +    b7                   + b12+b13
+//#define phba              b4 +    b7 +          b11    + b12+b13
+//#define phca                      b7 + b8 +     b11    + b12+b13
+//#define phcb         b3 +              b8 +     b11    + b12+b13
+//#define alloff       b3 +         b7 +          b11    + b12+b13
+
+#define phab b0 +                  b7                     + b12+b13
+#define phac b0 +                                  b11    + b12+b13
+#define phbc                 b4 +                  b11    + b12+b13
+#define phba         b3  +   b4                           + b12+b13
+#define phca         b3  +                b8              + b12+b13
+#define phcb                       b7 +   b8              + b12+b13
+#define alloff       b3 +          b7 +            b11    + b12+b13
