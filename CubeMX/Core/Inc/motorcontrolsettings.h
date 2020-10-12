@@ -1,31 +1,31 @@
 
-#define propgain 1024
-#define intgain 16
-#define acclim 5
-#define declim 5
-#define polepairs 5
+#define PROP_GAIN 				1024
+#define INT_GAIN 				16
+#define ACCLIM 					5
+#define DECLIM 					5
+#define POLE_PAIRS				5
 
-#define alignmentdc 100  
-#define rampupdc 500
-
-
-
-#define zcthreshold 200 // 50
-//#define rampuprate 1600
-#define alignmenttime 10000
-#define demagallowance 64 // 0-255 => 0 to 255/256 of a step time
-#define holdrpm 65
-#define holdtime 2000
-#define startuprpmpersecond 300
-#define overloadseconds 10
-#define overloadsecondsreset 10
-#define continuouscurrent 5000 // continuous current in milliamps
+#define ALIGNMENT_DC 			100
+#define RAMPUP_DC 				1000  	// 500
 
 
-#define   minstep (200000/polepairs/holdrpm)
-#define intclampscaler (1024/intgain)
-#define rampuprate (startuprpmpersecond * polepairs)
-#define overloaduprate   (1000/overloadseconds)
-#define overloaddownrate (1000/overloadsecondsreset)
-#define overloadthreshold (continuouscurrent*2/5)
-#define overloadsetpoint overloadthreshold/4
+
+#define ZC_THRESHOLD 			200 // 50
+//#define RAMPUP_RATE 1600
+#define ALIGNMENT_TIME 			10000
+#define DEMAG_ALLOWANCE 		64 // 0-255 => 0 to 255/256 of a step time
+#define HOLD_RPM 				65
+#define HOLD_TIME 				2000
+#define START_UP_RPM_PER_SECOND 300
+#define OVERLOAD_SECONDS 		10
+#define OVERLOAD_SECONDS_RESET 	10
+#define CONTINUOUS_CURRENT 		5000 // continuous current in milliamps
+
+
+#define   MIN_STEP 				(200000 / POLE_PAIRS / HOLD_RPM)	// z.Zt. 615
+#define INT_CLAMP_SCALER 		(1024 / INT_GAIN)
+#define RAMPUP_RATE 			(START_UP_RPM_PER_SECOND * POLE_PAIRS)
+#define OVERLOAD_UP_RATE   		(1000 / OVERLOAD_SECONDS)
+#define OVERLOAD_DOWN_RATE 		(1000 / OVERLOAD_SECONDS_RESET)
+#define OVERLOAD_THRESHOLD 		(CONTINUOUS_CURRENT * 2 / 5)
+#define OVERLOAD_SETPOINT 		OVERLOAD_THRESHOLD / 4

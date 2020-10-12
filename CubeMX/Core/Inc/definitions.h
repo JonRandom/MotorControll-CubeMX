@@ -33,15 +33,13 @@
 #define b30 (1<<30)
 #define b31 (1<<31)
 
-#define setmark GPIOB->ODR |= b6
-#define togglemark GPIOB->ODR ^= b6
-#define clearmark GPIOB->ODR &= ~b6
+#define MARK_SET 		GPIOB->ODR |= b6
+#define MARK_TOGGLE 	GPIOB->ODR ^= b6
+#define MARK_CLEAR 		GPIOB->ODR &= ~b6
 
-#define ledoff GPIOA->ODR |= b11
-#define ledtoggle GPIOA->ODR ^= b11
-#define ledon GPIOA->ODR &= ~b11
-
-
+#define LED_SWITCH_OFF 	GPIOA->ODR |= b11
+#define LED_TOGGLE 		GPIOA->ODR ^= b11
+#define LED_SWITCH_ON 	GPIOA->ODR &= ~b11
 
 
 // Advanced-control timers (TIM1 and TIM8) RM0008 Reference Manual S.354

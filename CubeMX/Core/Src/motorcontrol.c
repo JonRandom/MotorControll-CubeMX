@@ -211,9 +211,9 @@ dacout=phase*600;
 void tim4inthandler(void)
 {
 volatile unsigned short word0;
-volatile unsigned short word1;
+// volatile unsigned short word1;
 
-word0=TIM4->CCR1; // clear the interrupt flag
+word0 = TIM4->CCR1; 		// clear the interrupt flag
 
 //word1=3200;
 //while(word1>0) word1--;

@@ -198,10 +198,9 @@ int main(void)
   NVIC_Init(&NVIC_InitStructure);
 
   while (1) // main background loop
-    {
-
-      long0 = globalcounter - heartbeat1time;
-      if(long0>1)
+  {
+    long0 = globalcounter - heartbeat1time;
+    if (long0 > 1)
 	// ******************** 100 microsecond routine ************************
 	{
 	  heartbeat1time=globalcounter;
@@ -214,100 +213,135 @@ int main(void)
 
 	  // catch eventual rollover of positionest (and position) and prevent
 	  if( positionest & 0x80000000 ) // if positionest is greater than half range
-	    {
-	      positionest= positionest & 0x7FFFFFFF; // subtract 0x80000000
-	      position=position-524288; // subtract (0x80000000>>12)
-	    }
+	  {
+	    positionest= positionest & 0x7FFFFFFF; // subtract 0x80000000
+	    position=position-524288; // subtract (0x80000000>>12)
+	  }
 	} // ***************** end of 100 usec routine **********************
 
-
-      long0 = globalcounter - heartbeat2time;
-      if(long0>19)
+    long0 = globalcounter - heartbeat2time;
+    if (long0 > 19)
 	// ******************** 1 millisecond routine *************************
 	{
 	  heartbeat2time=globalcounter;
 
-
-
-
 	  // overload function
-	  if((ifbave>overloadthreshold) && !overloadflag)
-	    {
-	      overloadcounter=overloadcounter+overloaduprate;
-	    }
-	  else overloadcounter=overloadcounter-overloaddownrate;
-	  if(overloadcounter<0) {overloadcounter=0; overloadflag=0; }
-	  if(overloadcounter>1000000) overloadflag=255;
-
-	  if((ifb>overloadsetpoint) && overloadflag)
-	    {
-	      overloaddclimit = overloaddclimit-3;
-	    }
+	  if ((ifbave > OVERLOAD_THRESHOLD) && !overloadflag)
+      {
+	    overloadcounter = overloadcounter + OVERLOAD_UP_RATE;
+	  }
 	  else
-	    {
-	      overloaddclimit = overloaddclimit+1;
-	    }
+	  {
+	    overloadcounter = overloadcounter - OVERLOAD_DOWN_RATE;
+	  }
 
-	  if(overloaddclimit>1000) overloaddclimit=1000;
-	  if(overloaddclimit<100) overloaddclimit=100;
+	  if (overloadcounter < 0)
+	  {
+		overloadcounter=0;
+		overloadflag=0;
+	  }
 
+	  if (overloadcounter > 1000000)
+	  {
+   	    overloadflag=255;
+	  }
+
+	  if ((ifb>OVERLOAD_SETPOINT) && overloadflag)
+	  {
+	    overloaddclimit = overloaddclimit - 3;
+	  }
+	  else
+	  {
+	    overloaddclimit = overloaddclimit + 1;
+	  }
+
+	  if (overloaddclimit > 1000)
+	  {
+		overloaddclimit = 1000;
+	  }
+
+	  if(overloaddclimit < 100)
+	  {
+	    overloaddclimit=100;
+	  }
 
 	  // calculate rpm from speedest
-	  long0 = (speedest*6250)>>8;
-	  rpm = long0/polepairs;
-
+	  long0 = (speedest *6250) >> 8;
+	  rpm = long0 / POLE_PAIRS;
 
 	  // *************** speed regulator  *********************************
-	  slong0 = rpmref - rpm;  // speed error
-	  propterm = (slong0*propgain)>>8;
-	  errorint = errorint + slong0;
+	  slong0 		= rpmref - rpm;  // speed error
+	  propterm 		= (slong0 * PROP_GAIN) >> 8;
+	  errorint 		= errorint + slong0;
 	  // set activedc to the lower of maxdc or overloaddclimit
-	  if(maxdc<overloaddclimit) activedclimit=maxdc;
-	  else activedclimit = overloaddclimit;
+	  if (maxdc < overloaddclimit)
+	  {
+		activedclimit = maxdc;
+	  }
+	  else
+	  {
+	    activedclimit = overloaddclimit;
+	  }
 
 	  slong0 = activedclimit - propterm;
-	  if(slong0<0) slong0=0; // slong0 holds maximum allowable intterm
+	  if (slong0 < 0)
+	  {
+		slong0=0; // slong0 holds maximum allowable intterm
+	  }
 
-	  slong0 = slong0 * intclampscaler; // slong0 holds max error integral
-	  if(errorint>slong0) errorint=slong0;
-	  if(errorint<0) errorint=0;
+	  slong0 = slong0 * INT_CLAMP_SCALER; // slong0 holds max error integral
 
-	  intterm = (errorint*intgain)>>10;
+	  if (errorint > slong0)
+	  {
+		 errorint=slong0;
+	  }
+
+	  if (errorint < 0)
+	  {
+	    errorint=0;
+	  }
+
+	  intterm = (errorint*INT_GAIN) >> 10;
 
 	  slong0 = propterm + intterm;
 
-	  if(slong0>activedclimit) slong0=activedclimit;
-	  if(slong0<100) slong0=100;
+	  if (slong0 > activedclimit)
+	  {
+		slong0 = activedclimit;
+	  }
 
-	  if( (zcfound) && (transitioncounter<100)) transitioncounter++;
-	  if(transitioncounter<100)
-	    {
-	      runningdc=500;
-	      errorint = 500 * intclampscaler;
-	      rpmref = rpm;
-	    }
+	  if (slong0 < 100)
+	  {
+	    slong0 = 100;
+	  }
+
+	  if ((zcfound) && (transitioncounter < 100))
+	  {
+		transitioncounter++;
+	  }
+
+	  if (transitioncounter < 100)
+	  {
+	    runningdc 	= 500;
+	   	errorint 	= 500 * INT_CLAMP_SCALER;
+	   	rpmref 		= rpm;
+	  }
 	  else
-	    {
-	      runningdc=slong0;
-	    }
+	  {
+	    runningdc = slong0;
+	  }
 
-	  if(zcfound)
-	    {
-	      TIM1->CCR1= runningdc;
-	      TIM1->CCR2= runningdc;
-	      TIM1->CCR3= runningdc;
-	    }
-
-
-
-
+	  if (zcfound)
+	  {
+	    TIM1->CCR1= runningdc;
+	    TIM1->CCR2= runningdc;
+	    TIM1->CCR3= runningdc;
+	  }
 	} // ************** end of 1 millisecond routine *************************
 
 
-
-
-      long0 = globalcounter - heartbeat3time;
-      if(long0>199)
+    long0 = globalcounter - heartbeat3time;
+    if (long0 > 199)
 	{
 	  // ******************** 10 millisecond routine *************************
 
@@ -316,63 +350,88 @@ int main(void)
 	  potvalue = 4095 - adcread(2);  // read pot channel
 
 	  //sk: next line
-	  potvalue = 2024;
+	  potvalue = 201000 * 4;
 
 	  if(potvalue>200) run=255;
 	  if(potvalue<100) run=0;
-	  rpmcmd = potvalue>>2;
-	  if(rpmcmd<100) rpmcmd=100;
 
+	  rpmcmd = potvalue>>2;
+	  if (rpmcmd < 100)
+	  {
+	    rpmcmd = 100;
+	  }
 
 	  // accel/decel control
-	  slong0 = rpmcmd-rpmref;
-	  if(slong0>acclim) slong0=acclim;
-	  if(slong0<-declim) slong0=-declim;
+	  slong0 = rpmcmd - rpmref;
+	  if (slong0 >  ACCLIM) slong0 = ACCLIM;
+	  if (slong0 < -DECLIM) slong0 = -DECLIM;
 	  rpmref = rpmref + slong0;
 
 	} // ************** end of 10 millisecond routine *************************
 
 
+    // background code that runs with every loop
+    if(overcurrent)
+ 	{
+   	  flashcount=2;
+   	}
 
+    switch(ledstate)
+    {
+	  case 0:
+	    if(flashcount==0)
+	    {
+	      LED_SWITCH_ON;
+	      break;
+	    }// led on and break
 
-      // background code that runs with every loop
-      if(overcurrent) flashcount=2;
+	    LED_SWITCH_OFF;
+	    ledtime		= 0;
+	    ledstate	= 10;
+	    break;
 
-      switch(ledstate)
-      {
-	case 0:
-	  if(flashcount==0){ledon; break;}// led on and break
-	  ledoff;
-	  ledtime=0;
-	  ledstate=10;
-	  break;
+	  case 10:  // waiting out long pause
+	    if((ledtime)<30000)
+	   	{
+	      break;
+	    }
 
-	case 10:  // waiting out long pause
-	  if((ledtime)<30000) break;
-	  ledstate=20;
-	  flashcounter=0;
-	  break;
+	    ledstate		=20;
+	    flashcounter	= 0;
+	    break;
 
-	case 20: // long pause over
-	  ledon;
-	  ledtime=0;
-	  ledstate=30;
-	  break;
+  	  case 20: // long pause over
+  		LED_SWITCH_ON;
+	    ledtime		= 0,
+	    ledstate	= 30;
+	    break;
 
-	case 30: // waiting out short on time
-	  if(ledtime<8000) break;
-	  ledoff;
-	  ledtime=0;
-	  ledstate=40;
-	  break;
+	  case 30: // waiting out short on time
+	    if (ledtime < 8000)
+	    {
+	      break;
+	    }
 
-	case 40: // waiting out short off time
-	  if(ledtime<8000) break;
-	  flashcounter++;
-	  if(flashcounter>=flashcount) {ledstate=0; break;}
-	  ledstate=20;
-	  break;
+	    LED_SWITCH_OFF;
+	    ledtime		= 0;
+	    ledstate	= 40;
+	    break;
 
+	  case 40: // waiting out short off time
+	    if (ledtime < 8000)
+	    {
+	      break;
+	    }
+
+	    flashcounter++;
+	    if(flashcounter >= flashcount)
+	    {
+	      ledstate	= 0;
+	      break;
+	    }
+
+	    ledstate	= 20;
+	    break;
       } // end of ledstate switch statement
 
     } // end of background loop
@@ -385,23 +444,23 @@ unsigned short adcread( unsigned char chnl)
 {
   unsigned short result;
 
-  ADC1->SQR3=chnl; // set adc channel
-  ADC1->CR2=1;  // start ADC conversion of bemf
+  ADC1->SQR3=chnl; 			// set adc channel
+  ADC1->CR2=1;  			// start ADC conversion of bemf
   while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
   result= ADC1->DR;
 
-  if(ADC1->SQR3!=chnl) // read again if conversion was interrupted by foreground
+  if(ADC1->SQR3!=chnl)		// read again if conversion was interrupted by foreground
     {
-      ADC1->SQR3=chnl; // set adc channel
-      ADC1->CR2=1;  // start ADC conversion of bemf
+      ADC1->SQR3=chnl; 		// set adc channel
+      ADC1->CR2=1;  		// start ADC conversion of bemf
       while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
       result= ADC1->DR;
     }
 
-  if(ADC1->SQR3!=chnl) // must check third time
+  if(ADC1->SQR3!=chnl) 		// must check third time
     {
-      ADC1->SQR3=chnl; // set adc channel
-      ADC1->CR2=1;  // start ADC conversion of bemf
+      ADC1->SQR3=chnl; 		// set adc channel
+      ADC1->CR2=1;  		// start ADC conversion of bemf
       while((ADC1->SR & b1)==0) if(ADC1->SQR3!=chnl) break; // wait for conversion to complete
       result= ADC1->DR;
     }
@@ -412,61 +471,84 @@ unsigned short adcread( unsigned char chnl)
 // interrupt service routine run just at the end of each PWM cycle
 void PWMISR(void)
 {
-
   unsigned long long0;
 
-  ADC1->SQR3=bemfchannel;
-  ADC1->CR2=0x00000001;  // start ADC conversion of bemf
+  ADC1->SQR3	= bemfchannel;
+  ADC1->CR2		= 0x00000001;  // start ADC conversion of back emf (bemf)
   zccounter++;  // housekeeping increment of some timers while adc is converting
   alignmentcounter++;
   holdcounter++;
   ledtime++;
-  while((ADC1->SR & b1)==0) ; // wait for conversion to complete
-  bemfsample= ADC1->DR;
+  while ((ADC1->SR & b1) == 0) ; // wait for conversion to complete
+  bemfsample	= ADC1->DR;
 
   // sk DAC->DHR12R2 = bemfsample;
   // sk DAC->SWTRIGR=0x00000003;
 
-
-  if(autostep)
+  if (autostep)
+  {
+    commcounter++;
+    if (commcounter > step)
     {
-      commcounter++;
-      if(commcounter>step)
-	{
-	  commcounter=0;
-	  phase++;
-	  position++;
-	  if(phase>5) phase=0;
-	  TIM1->CCER = ccermask[phase]; // commutate bridge from table
+      commcounter	= 0;
+      phase++;
+      position++;
+      if (phase > 5)
+      {
+        phase = 0;
+      }
 
-	}
-    } // end of if(autostep)
+      TIM1->CCER = ccermask[phase]; // commutate bridge from table
+    }
+  } 	  // end of if(autostep)
 
 
-  if(run==0) startstate=0;
+
+#define STATE_MOTOR_OFF						0
+#define STATE_MOTOR_INIT					5
+#define STATE_MOTOR_ALIGNMENT				10
+#define STATE_MOTOR_RAMP_UP					20
+#define STATE_MOTOR_WAIT_HOLD				100
+#define STATE_MOTOR_WAIT_PHASE_5			110
+#define STATE_MOTOR_WAIT_PHASE0				120
+#define STATE_MOTOR_WAIT_DEMAGNET_TIME		130
+#define STATE_MOTOR_WAIT_SEARCH_ZEROCROSS	140
+#define STATE_MOTOR_WAIT_SEARCH_COMM_DELAY  150
+
+#define	PHASE_0		0
+#define	PHASE_1		1
+#define	PHASE_2		2
+#define	PHASE_3		3
+#define	PHASE_4		4
+#define	PHASE_5		5
+
+  if (run == 0)
+  {
+	startstate = STATE_MOTOR_OFF;
+  }
 
   switch(startstate)
   {
-    case 0:
+    case STATE_MOTOR_OFF:
       TIM1->CCER = alloff;
-      if(run)
+      if (run)
 	{
 	  motorstartinit();
-	  startstate=5;
+	  startstate = STATE_MOTOR_INIT;
 	}
       break;
 
-    case 5: // setup alignment
-      TIM1->CCR1= alignmentdc;
-      TIM1->CCR2= alignmentdc;
-      TIM1->CCR3= alignmentdc;
+    case STATE_MOTOR_INIT: 				// setup alignment
+      TIM1->CCR1	= ALIGNMENT_DC;
+      TIM1->CCR2	= ALIGNMENT_DC;
+      TIM1->CCR3	= ALIGNMENT_DC;
 
       // phase=0;
 
-      TIM1->CCER = ccermask[phase]; // commutate bridge from table
-      alignmentcounter=0;
+      TIM1->CCER = ccermask[phase]; 	// commutate bridge from table
+      alignmentcounter = 0;
 
-      // startstate=10;
+      // startstate = STATE_MOTOR_ALIGNMENT;
 
       if (phaseTimeCounter++ > 40)
       {
@@ -479,150 +561,167 @@ void PWMISR(void)
       }
       break;
 
-    case 10: // timing out alignment
-      if(alignmentcounter>alignmenttime)
-	{
-	  rampspeed=1;
-	  commcounter=0;
-	  autostep=255;
-	  TIM1->CCR1= rampupdc;
-	  TIM1->CCR2= rampupdc;
-	  TIM1->CCR3= rampupdc;
-	  startstate=20;
-	}
+    case STATE_MOTOR_ALIGNMENT: 		// timing out alignment
+      if (alignmentcounter > ALIGNMENT_TIME)
+      {
+    	  rampspeed 	= 1;
+    	  commcounter	= 0;
+    	  autostep		= 255;
+    	  TIM1->CCR1	= RAMPUP_DC;
+    	  TIM1->CCR2	= RAMPUP_DC;
+    	  TIM1->CCR3	= RAMPUP_DC;
+    	  startstate	= STATE_MOTOR_RAMP_UP;
+      }
       break;
 
-    case 20:
-      rampspeed = rampspeed+rampuprate;
-      long0 = 4000000000;
-      long0 = long0/rampspeed;
-      if(long0>30000) long0=30000;
-      step=long0;
-      if(step<=minstep)
-	{
-	  holdcounter=0;
-	  startstate=100;
-	}
+    case STATE_MOTOR_RAMP_UP:
+      rampspeed = rampspeed + RAMPUP_RATE;
+      long0 	= 4000000000;
+      long0 	= long0 / rampspeed;
+      if (long0 > 30000)
+      {
+    	  long0 = 30000;
+      }
+
+      step 		= long0;
+
+      if (step <= MIN_STEP)	// zur Zeit nach 4336 Durchläufen, d,h, nach 0,216s
+      {
+    	  holdcounter	= 0;
+    	  startstate	= STATE_MOTOR_WAIT_HOLD;
+      }
       break;
 
-    case 100: // wait for hold time
-      if(holdcounter>holdtime) startstate=110;
+    case STATE_MOTOR_WAIT_HOLD: // wait for hold time
+      if (holdcounter > HOLD_TIME)	// nach 2000 * 50us = 100ms
+      {
+    	  startstate = STATE_MOTOR_WAIT_PHASE_5;
+      }
       break;
 
-    case 110: // wait to get into phase 5
-      if(phase==5) startstate=120;
+    case STATE_MOTOR_WAIT_PHASE_5: // wait to get into phase 5
+      if (phase == PHASE_5)
+      {
+    	  startstate	= STATE_MOTOR_WAIT_PHASE0;
+      }
       break;
 
-    case 120: // wait for leading edge of phase 0 (commutation)
-      if(phase==0)
-	{
-	  demagcounter=0;
-	  demagthreshold = (step*demagallowance)>>8;
-	  startstate=130;
-	}
+    case STATE_MOTOR_WAIT_PHASE0: // wait for leading edge of phase 0 (commutation)
+      if (phase ==  PHASE_0)
+      {
+    	  demagcounter 		= 0;
+    	  demagthreshold 	= (step * DEMAG_ALLOWANCE) >> 8;
+    	  startstate		= STATE_MOTOR_WAIT_DEMAGNET_TIME;
+      }
       break;
 
-    case 130: // wait out demag time
+    case STATE_MOTOR_WAIT_DEMAGNET_TIME: // wait out demag time
       demagcounter++;
-      if(demagcounter>demagthreshold)
-	{
-	  startstate=140;
-	}
+      if (demagcounter > demagthreshold)
+      {
+    	  // test only sk: startstate	= STATE_MOTOR_WAIT_SEARCH_ZEROCROSS;
+      }
       break;
 
-    case 140: // looking for zero crossing of bemf
-      if(risingedge)
-	{
-	  if(bemfsample>zcthreshold)
-	    {
-	      if(zcfound) step = zccounter;
-	      commthreshold = (step*risingdelay)>>8;
-	      zccounter=0;
-	      commcounter=0;
-	      startstate=150;
-	      risingedge=0;
-	      zcfound=255;
-	      autostep=0;
+    case STATE_MOTOR_WAIT_SEARCH_ZEROCROSS: // looking for zero crossing of bemf
+      if (risingedge)
+      {
+    	if (bemfsample > ZC_THRESHOLD)
+    	{
+    	  if (zcfound)
+    	  {
+    	    step = zccounter;
+    	  }
+    	  commthreshold = (step * risingdelay) >> 8;
+    	  zccounter		= 0;
+    	  commcounter	= 0;
+    	  startstate	= STATE_MOTOR_WAIT_SEARCH_COMM_DELAY;
+    	  risingedge	= 0;
+    	  zcfound		= 255;
+    	  autostep		= 0;
 	    }
-	}
+	  }
       else
-	{
-	  if(bemfsample<zcthreshold)
+	  {
+    	if (bemfsample < ZC_THRESHOLD)
 	    {
-	      if(zcfound) step = zccounter;
-	      commthreshold = (step*fallingdelay)>>8;
-	      zccounter=0;
-	      commcounter=0;
-	      startstate=150;
-	      risingedge = 255;
-	      zcfound=255;
-	      autostep=0;
+    	  if (zcfound)
+    	  {
+    		step = zccounter;
+    	  }
+    	  commthreshold 	= (step * fallingdelay) >> 8;
+    	  zccounter		= 0;
+    	  commcounter		= 0;
+    	  startstate		= STATE_MOTOR_WAIT_SEARCH_COMM_DELAY;
+    	  risingedge 		= 255;
+    	  zcfound			= 255;
+    	  autostep		= 0;
 	    }
 	}
       break;
 
-    case 150:  // wait out commutation delay
+    case STATE_MOTOR_WAIT_SEARCH_COMM_DELAY:  // wait out commutation delay
       commcounter++;
-      if(commcounter>commthreshold)
-	{
-	  position++;
-	  phase++; // commutate
-	  if(phase>5) phase=0;
-	  TIM1->CCER = ccermask[phase]; // commutate bridge from fwd table
+      if (commcounter > commthreshold)
+      {
+    	  position++;
+    	  phase++; // commutate
+    	  if (phase > 5)
+    	  {
+    		  phase=0;
+    	  }
+    	  TIM1->CCER 	= ccermask[phase]; // commutate bridge from fwd table
 
-	  // sk DAC->DHR12R1 = phase*810;
-	  // sk DAC->SWTRIGR=0x00000003;
+    	  // sk DAC->DHR12R1 = phase*810;
+    	  // sk DAC->SWTRIGR=0x00000003;
 
-	  demagcounter=0;
-	  demagthreshold = (step*demagallowance)>>8;
-	  if(phase==0)
-	    {
-	      ifbave = (ifbsum<<2) / ifbcount;
-	      ifbcount=0;
-	      ifbsum=0;
-	    }
-	  startstate=130;  // go back to wait out demag
-	}
+    	  demagcounter		=0;
+    	  demagthreshold 	= (step * DEMAG_ALLOWANCE) >> 8;
+    	  if(phase==0)
+    	  {
+    		  ifbave 	= (ifbsum << 2) / ifbcount;
+    		  ifbcount	= 0;
+    		  ifbsum	= 0;
+    	  }
+    	  startstate	= STATE_MOTOR_WAIT_DEMAGNET_TIME;  // go back to wait out demag
+      }
       break;
   } // end of startstate state machine
 
-
   switch(phase)
   {
-    case 0: // ab
-      bemfchannel=8; // read phase c
+    case PHASE_0:		// ab
+    case PHASE_3: 		// ba
+      bemfchannel=2; 	// read phase c
       break;
-    case 1: // ac
-      bemfchannel=7; // read phase b
+    case PHASE_1: 		// ac
+    case PHASE_4:  		// ca
+      bemfchannel=1; 	// read phase b
       break;
-    case 2:  // bc
-      bemfchannel=6; // read phase a
+    case PHASE_2:  		// bc
+    case PHASE_5:  		// cb
+      bemfchannel=0; 	// read phase a
       break;
-    case 3:  // ba
-      bemfchannel=8; // read phase c
-      break;
-    case 4:  // ca
-      bemfchannel=7; // read phase b
-      break;
-    case 5:  // cb
-      bemfchannel=6; // read phase a
-      break;
-
+//    case PHASE_3:  // ba
+//      bemfchannel=8; // read phase c
+//      break;
+//    case PHASE_4:  // ca
+//      bemfchannel=7; // read phase b
+//      break;
+//    case PHASE_5:  // cb
+//      bemfchannel=6; // read phase a
+//      break;
   } // end of phase switch statement
 
-
-  ADC1->SQR3=0x00000000; // current sense adc channel
-  ADC1->CR2=0x00000001;  // start ADC conversion of bemf
+  ADC1->SQR3	= 0x00000000; 		// current sense adc channel
+  ADC1->CR2		= 0x00000001;  		// start ADC conversion of bemf
   globalcounter++;
-  while((ADC1->SR & b1)==0) ; // wait for conversion to complete
-  ifb= ADC1->DR-ifboffset;
-  ifbsum = ifbsum + ifb;
+  while  ((ADC1->SR & b1) == 0) ; 	// wait for conversion to complete
+  ifb		= ADC1->DR - ifboffset;
+  ifbsum 	= ifbsum + ifb;
   ifbcount++;
 
-
-
-  TIM1->SR=0;  // clear interrupt
-
+  TIM1->SR	= 0;  // clear interrupt
 }
 
 
@@ -630,61 +729,42 @@ void  motorstartinit(void)
 {
   TIM1->CCER = alloff;
   // TIM1->BDTR= b15+b12+b11+16;  // 2 usec dead time and set MOE
-  TIM1->BDTR= b15 + b11 + 16;  // Break enable ausgeschaltet (Test only), 2 usec dead time and set MOE
-  maxdc=1000;
-  rpmcmd=500;
-  rpmref=0;
-  transitioncounter=0;
-  errorint=0;
-  position=520000;
-  positionest= position * 4096;
-  speedest=0;
-  rpm=0;
-  phase = 0;
-  holdcounter=0;
-  startstate=0;
-  commcounter=0;
-  step=3670;
-  autostep = 0;
-  risingedge = 0;
-  zcfound=0;
-  alignmentcounter=0;
-  rampspeed=1;
-  runningdc = 500;
-  commthreshold=0;
-  risingdelay=127;
-  fallingdelay=127;
-  ledoff;
-  ledstate=0;
-  flashcount=0;
-  overcurrent=0;
-  ifb=0;
-  overloaddclimit=1200;
-  overloadcounter=0;
-  overloadflag=0;
-  ifbsum=0;
-  ifbave=0;
-  ifbcount=0;
-
-
+  TIM1->BDTR		= b15 + b11 + 16;  // Break enable ausgeschaltet (Test only), 2 usec dead time and set MOE
+  maxdc				= 1000;
+  rpmcmd			= 500;
+  rpmref			= 0;
+  transitioncounter	= 0;
+  errorint			= 0;
+  position			= 520000;
+  positionest		= position * 4096;
+  speedest			= 0;
+  rpm				= 0;
+  phase 			= 0;
+  holdcounter		= 0;
+  startstate		= 0;
+  commcounter		= 0;
+  step				= 3670;
+  autostep 			= 0;
+  risingedge 		= 0;
+  zcfound			= 0;
+  alignmentcounter	= 0;
+  rampspeed			= 1;
+  runningdc 		= 500;
+  commthreshold		= 0;
+  risingdelay		= 127;
+  fallingdelay		= 127;
+  LED_SWITCH_OFF;
+  ledstate			= 0;
+  flashcount		= 0;
+  overcurrent		= 0;
+  ifb				= 0;
+  overloaddclimit	= 1200;
+  overloadcounter	= 0;
+  overloadflag		= 0;
+  ifbsum			= 0;
+  ifbave			= 0;
+  ifbcount			= 0;
 } // end of motor start init function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #ifdef  DEBUG
@@ -708,12 +788,6 @@ void assert_failed(u8* file, u32 line)
     }
 }
 #endif
-
-
-
-
-
-
 
 
 /******************* (C) COPYRIGHT 2007 STMicroelectronics *****END OF FILE****/
