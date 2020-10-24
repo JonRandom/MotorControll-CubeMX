@@ -350,7 +350,7 @@ int main(void)
 	  potvalue = 4095 - adcread(2);  // read pot channel
 
 	  //sk: next line
-	  potvalue = 201000 * 4;
+	  potvalue = 2000;
 
 	  if(potvalue>200) run=255;
 	  if(potvalue<100) run=0;
@@ -471,7 +471,8 @@ unsigned short adcread( unsigned char chnl)
 // interrupt service routine run just at the end of each PWM cycle
 void PWMISR(void)
 {
-  unsigned long long0;
+  // unsigned long long0;
+  unsigned long stepTime;
 
   ADC1->SQR3	= bemfchannel;
   ADC1->CR2		= 0x00000001;  // start ADC conversion of back emf (bemf)
@@ -535,6 +536,7 @@ void PWMISR(void)
 	{
 	  motorstartinit();
 	  startstate = STATE_MOTOR_INIT;
+	  phase = 0;
 	}
       break;
 
@@ -548,7 +550,7 @@ void PWMISR(void)
       TIM1->CCER = ccermask[phase]; 	// commutate bridge from table
       alignmentcounter = 0;
 
-      // startstate = STATE_MOTOR_ALIGNMENT;
+      startstate = STATE_MOTOR_ALIGNMENT;
 
       if (phaseTimeCounter++ > 40)
       {
@@ -576,14 +578,14 @@ void PWMISR(void)
 
     case STATE_MOTOR_RAMP_UP:
       rampspeed = rampspeed + RAMPUP_RATE;
-      long0 	= 4000000000;
-      long0 	= long0 / rampspeed;
-      if (long0 > 30000)
+      stepTime 	= 4000000000;
+      stepTime 	= stepTime / rampspeed;
+      if (stepTime > 10000) // 30000)
       {
-    	  long0 = 30000;
+    	  stepTime = 10000; // 30000;
       }
 
-      step 		= long0;
+      step 		= stepTime;
 
       if (step <= MIN_STEP)	// zur Zeit nach 4336 Durchläufen, d,h, nach 0,216s
       {
@@ -602,7 +604,7 @@ void PWMISR(void)
     case STATE_MOTOR_WAIT_PHASE_5: // wait to get into phase 5
       if (phase == PHASE_5)
       {
-    	  startstate	= STATE_MOTOR_WAIT_PHASE0;
+    	  // startstate	= STATE_MOTOR_WAIT_PHASE0;
       }
       break;
 

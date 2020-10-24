@@ -5,8 +5,8 @@
 #define DECLIM 					5
 #define POLE_PAIRS				5
 
-#define ALIGNMENT_DC 			100
-#define RAMPUP_DC 				1000  	// 500
+#define ALIGNMENT_DC 			150
+#define RAMPUP_DC 				500
 
 
 
@@ -16,7 +16,7 @@
 #define DEMAG_ALLOWANCE 		64 // 0-255 => 0 to 255/256 of a step time
 #define HOLD_RPM 				65
 #define HOLD_TIME 				2000
-#define START_UP_RPM_PER_SECOND 300
+#define START_UP_RPM_PER_SECOND 100
 #define OVERLOAD_SECONDS 		10
 #define OVERLOAD_SECONDS_RESET 	10
 #define CONTINUOUS_CURRENT 		5000 // continuous current in milliamps
