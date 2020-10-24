@@ -3,6 +3,7 @@
 #include "SystemConfig.h"
 #include "motorcontrolsettings.h"
 #include "definitions.h"
+#include "motorState.h"
 
 
 
@@ -196,6 +197,9 @@ int main(void)
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+
+  initMotorState ();
+
 
   while (1) // main background loop
   {
@@ -469,7 +473,16 @@ unsigned short adcread( unsigned char chnl)
 
 
 // interrupt service routine run just at the end of each PWM cycle
-void PWMISR(void)
+void PWMISR (void)
+{
+	processMotorState ();
+    TIM1->SR	= 0;  		// clear interrupt
+
+}
+
+
+// interrupt service routine run just at the end of each PWM cycle
+void PWMISR_nichtMehrBenutzt(void)
 {
   // unsigned long long0;
   unsigned long stepTime;
@@ -508,7 +521,7 @@ void PWMISR(void)
 #define STATE_MOTOR_OFF						0
 #define STATE_MOTOR_INIT					5
 #define STATE_MOTOR_ALIGNMENT				10
-#define STATE_MOTOR_RAMP_UP					20
+#define STATE_MOTOR_RAMP_UP_X				20
 #define STATE_MOTOR_WAIT_HOLD				100
 #define STATE_MOTOR_WAIT_PHASE_5			110
 #define STATE_MOTOR_WAIT_PHASE0				120
@@ -572,11 +585,11 @@ void PWMISR(void)
     	  TIM1->CCR1	= RAMPUP_DC;
     	  TIM1->CCR2	= RAMPUP_DC;
     	  TIM1->CCR3	= RAMPUP_DC;
-    	  startstate	= STATE_MOTOR_RAMP_UP;
+    	  startstate	= STATE_MOTOR_RAMP_UP_X;
       }
       break;
 
-    case STATE_MOTOR_RAMP_UP:
+    case STATE_MOTOR_RAMP_UP_X:
       rampspeed = rampspeed + RAMPUP_RATE;
       stepTime 	= 4000000000;
       stepTime 	= stepTime / rampspeed;
