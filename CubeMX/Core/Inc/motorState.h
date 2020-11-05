@@ -8,12 +8,12 @@
 
 #define STATE_DOES_NOT_EXIST				1
 
-#define STARTUP_PHASE_TIME					100		// zur Zeit 5ms
-#define START_STEP_ANZ						400		// Anzahl ISR Zyklen, die im state STATE_MOTOR_START verbracht werden
-#define RAMPUP_PHASE_TIME_ACC				950		// neueZeit =alteZeit * RAMPUP_PHASE_TIME_ACC / 1000
-#define RAMPUP_PHASE_TIME_END				40		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
+#define STARTUP_PHASE_TIME					200		// zur Zeit 5ms
+#define START_STEP_ANZ						100		// Anzahl ISR Zyklen, die im state STATE_MOTOR_START verbracht werden
+#define RAMPUP_PHASE_TIME_ACC				999		// neueZeit =alteZeit * RAMPUP_PHASE_TIME_ACC / 1000
+#define RAMPUP_PHASE_TIME_END				17		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
 
-#define PWM_INIT							150
+#define PWM_INIT							100
 #define PWM_RAMPUP							300
 
 typedef int state_t;
@@ -56,6 +56,17 @@ void processMotorState();
 #define b29             (1 << 29)
 #define b30             (1 << 30)
 #define b31             (1 << 31)
+
+
+#define	PHASE_0		0
+#define	PHASE_1		1
+#define	PHASE_2		2
+#define	PHASE_3		3
+#define	PHASE_4		4
+#define	PHASE_5		5
+
+#define PHASEN_ANZ	6
+
 
 //#define MARK_SET 		GPIOB->ODR |= b6
 //#define MARK_TOGGLE 	GPIOB->ODR ^= b6

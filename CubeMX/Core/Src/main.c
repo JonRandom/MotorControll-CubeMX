@@ -127,7 +127,7 @@ int main(void)
 
   // port B setup
   // old: GPIOB->CRH = 0xBBB43444; // 15,14,13 AF PP, 11 PP, rest inputs
-  GPIOB->CRH = 0x44443444; // 15,14,13 are now floating inputs, 11 PP, rest inputs
+  GPIOB->CRH = 0x24443444; // 15,14,13 are now floating inputs, 11 PP, rest inputs
   // old: GPIOB->CRL = 0x43444440; // b0 ain, b6 GPIO PP
   GPIOB->CRL = 0x434444BB; // b0, b1 are AF PP, b6 GPIO PP
   GPIOB->ODR &= ~b11;  //clear pb11 to select bemf off time sampling
@@ -138,7 +138,7 @@ int main(void)
   TIM1->CCR1= 0;
   TIM1->CCR2= 0;
   TIM1->CCR3= 0;
-  TIM1->CCR4= 1100;
+  TIM1->CCR4= 100;		// sk: neu, ISR Zeitpunkt in PWM-on Phase verschieben   alt: 1100;
   TIM1->ARR=1200;
   TIM1->CR1=0x0001;
   // b12 to enable brk input
@@ -151,9 +151,9 @@ int main(void)
   TIM1->DIER = b4+b7;  // enable cc4 interrupt
 
   // DAC setup
-  // sk RCC->APB1ENR |= b29; // enable DAC peripheral clock
+  // RCC->APB1ENR |= b29; // enable DAC peripheral clock
 
-  // sk DAC->CR = b16+b0 ; // enable both DACs
+  // DAC->CR = b16+b0 ; // enable both DACs
 
   // ADC setup
   ADC1->CR2=0x00000001;  // turn ADC on
