@@ -3,18 +3,19 @@
 
 #define STATE_MOTOR_OFF						0
 #define STATE_MOTOR_START					1
-#define STATE_MOTOR_RAMP_UP					2
-#define STATE_MOTOR_ZEROCROSS				3
+#define STATE_MOTOR_RAMP_UP				2
+#define STATE_MOTOR_ZEROCROSS			3
 
-#define STATE_DOES_NOT_EXIST				1
+#define STATE_DOES_NOT_EXIST			1
 
-#define STARTUP_PHASE_TIME					200		// zur Zeit 5ms
+#define STARTUP_PHASE_TIME				200		// zur Zeit 5ms
 #define START_STEP_ANZ						100		// Anzahl ISR Zyklen, die im state STATE_MOTOR_START verbracht werden
-#define RAMPUP_PHASE_TIME_ACC				999		// neueZeit =alteZeit * RAMPUP_PHASE_TIME_ACC / 1000
-#define RAMPUP_PHASE_TIME_END				17		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
+#define RAMPUP_PHASE_TIME_ACC			999		// neueZeit =alteZeit * RAMPUP_PHASE_TIME_ACC / 1000
+#define RAMPUP_PHASE_TIME_END			17		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
 
-#define PWM_INIT							100
-#define PWM_RAMPUP							300
+#define PWM_INIT									100
+#define PWM_RAMPUP								200
+#define PWM_USER_DEFAULT					200
 
 typedef int state_t;
 typedef int error_t;
@@ -22,6 +23,8 @@ typedef int error_t;
 
 void initMotorState();
 void processMotorState();
+void changeAdcChannel (int phase);
+
 
 // Bit Definitionen:
 #define b0              (1 << 0)

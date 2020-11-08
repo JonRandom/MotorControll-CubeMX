@@ -35,7 +35,7 @@ int pwmFromUser;		// dieser Wert steuert den Motor, 0 = Motor aus
 int zerocrossIdx;		// zählt die Aufrufe von processMotorZeroCross hoch, wird bei Phasenwechsel NULL gesetzt
 int lastBemfValue	= 0;
 
-#define BEMF_ARRAY_SIZE	25
+#define BEMF_ARRAY_SIZE	16
 
 int bemfArray[PHASEN_ANZ][BEMF_ARRAY_SIZE];
 
@@ -57,15 +57,16 @@ const unsigned int motorTimerCCER_PinsOff = alloff;
 
 void initMotorState()
 {
-	motorState 			= STATE_MOTOR_OFF;
-	stateError			= 0;
-	stepCounter			= 0;
-	motorPhase 			= 0;
+	motorState 				= STATE_MOTOR_OFF;
+	stateError				= 0;
+	stepCounter				= 0;
+	motorPhase 				= 0;
 	phaseTimeCounter	= 0;
 	actualPhaseTime		= 0;
-	pwmFromUser			= 300;	// todo
+	pwmFromUser				= PWM_USER_DEFAULT;	// todo
 
 	triggerInit();
+	triggerAdcInit();
 }
 
 
@@ -96,7 +97,9 @@ void switchToNextPhase ()
 		triggerOff();
 	}
 
-    TIM1->CCER = motorTimerCCER_Table[motorPhase];
+  TIM1->CCER = motorTimerCCER_Table[motorPhase];
+
+  changeAdcChannel (motorPhase);	// ADC zur nächsten Phase weiterschalten
 }
 
 
@@ -187,32 +190,41 @@ int zeroCrossDetected (int actual, int last)
   return zeroCrossFound;
 }
 
+void changeAdcChannel (int phase)
+{
+	switch(phase)
+	{
+		case PHASE_0:		// ab
+		case PHASE_3: 		// ba
+			ADC1->SQR3 = 2; 	// read phase c
+			break;
+		case PHASE_1: 		// ac
+		case PHASE_4:  		// ca
+			ADC1->SQR3 = 1; 	// read phase b
+			break;
+		case PHASE_2:  		// bc
+		case PHASE_5:  		// cb
+			ADC1->SQR3 = 0; 	// read phase a
+			break;
+		default:
+			break;
+	}
+}
+
 
 int getEmfADCvalue (int phase)
 {
   int adcValue;
 
-  switch(phase)
-  {
-    case PHASE_0:		// ab
-    case PHASE_3: 		// ba
-      ADC1->SQR3 = 2; 	// read phase c
-      break;
-    case PHASE_1: 		// ac
-    case PHASE_4:  		// ca
-      ADC1->SQR3 = 1; 	// read phase b
-      break;
-    case PHASE_2:  		// bc
-    case PHASE_5:  		// cb
-      ADC1->SQR3 = 0; 	// read phase a
-      break;
-    default:
-      break;
-  }
 
-  ADC1->CR2		= 0x00000001;  		// start ADC conversion of back emf (bemf)
-  while ((ADC1->SR & b1) == 0) ; 	// wait for conversion to complete
+  triggerAdcOn();
+  // ADC1->SR = 0;
+  // ADC1->CR2		= 0x00000003;  		// start ADC conversion of back emf (bemf)
+  // while ((ADC1->SR & b1) == 0) ; 	// wait for conversion to complete
   adcValue	= ADC1->DR;
+
+  triggerAdcOff();
+
   return adcValue;
 }
 
@@ -248,7 +260,7 @@ state_t processMotorZeroCross()
 	{
 	  bemfTempArray[zerocrossIdx] = bemfValue;
 	  zerocrossIdx++;
-	  bemfTempArray[1] = zerocrossIdx;
+	  bemfTempArray[0] = zerocrossIdx;
 	}
 
 	if (++phaseTimeCounter > rampupTime)
@@ -260,8 +272,7 @@ state_t processMotorZeroCross()
 //	{
 		copyBemfArray (zerocrossIdx, motorPhase);
 		switchToNextPhase ();
-		bemfTempArray[0] 	= motorPhase;
-		zerocrossIdx 		= 2;
+		zerocrossIdx 		= 1;
 		bemfTempArray[1] 	= zerocrossIdx;
 		// actualSpeed 		= speedCounter;
 	}
@@ -280,6 +291,8 @@ state_t processMotorZeroCross()
 void processMotorState()
 {
 	state_t nextState = 0;
+
+	// triggerAdcOn();
 
 	switch (motorState)
 	{
@@ -303,4 +316,7 @@ void processMotorState()
 	{
 		motorState = nextState;
 	}
+
+	// triggerAdcOff();
+
 }

@@ -84,7 +84,7 @@ void  motorstartinit(void);
 int main(void)
 {
   unsigned long long0;
-  unsigned long long1;
+  // unsigned long long1;
   signed long slong0;
   signed long propterm;
   signed long intterm;
@@ -138,7 +138,7 @@ int main(void)
   TIM1->CCR1= 0;
   TIM1->CCR2= 0;
   TIM1->CCR3= 0;
-  TIM1->CCR4= 100;		// sk: neu, ISR Zeitpunkt in PWM-on Phase verschieben   alt: 1100;
+  TIM1->CCR4= 300;  // 1150;		// 100;		// sk: neu, ISR Zeitpunkt in PWM-on Phase verschieben   alt: 1100;
   TIM1->ARR=1200;
   TIM1->CR1=0x0001;
   // b12 to enable brk input
@@ -156,11 +156,15 @@ int main(void)
   // DAC->CR = b16+b0 ; // enable both DACs
 
   // ADC setup
-  ADC1->CR2=0x00000001;  // turn ADC on
+  ADC1->CR2	=	0x00000001;  		// ADDON = 1: turn ADC on
   ADC_StartCalibration(ADC1);
   while (ADC_GetCalibrationStatus(ADC1) );
-  ADC1->CR1=0x00000800;  // enable discontinuous regular conversion
-  ADC1->CR2=0x00000001;  // turn ADC on
+  ADC1->CR1		= 0x00; 				// neu Single conversion mode, old: 0x00000800;  // enable discontinuous regular conversion
+  ADC1->SMPR2 = 0xDB;					// Sampletime = 28,5 Zyklen -> 011 binär => 0 1101 1011 binär = 0DB hex
+  ADC1->CR2		= 0x00000000;  	// ADDON = 0, CONT = 0: turn ADC on in continuous mode
+  ADC1->CR2		= 0x00000002;  	// ADDON = 0, CONT = 1: turn ADC on in continuous mode
+  ADC1->CR2		= 0x00000003;  	// ADDON = 1, CONT = 1: turn ADC on in continuous mode
+  ADC1->CR2		= 0x00000003 + b22;
 
   // initialization
   globalcounter=0;
@@ -172,16 +176,16 @@ int main(void)
 
   // get ifb average offset level
   long0=1;
-  long1=0;
-  while(long0<1025)
-    {
-      ADC1->SQR3=0x00000000; // current sense adc channel
-      ADC1->CR2=0x00000001;  // start ADC conversion of bemf
-      while((ADC1->SR & b1)==0) ; // wait for conversion to complete
-      long1 = long1 + ADC1->DR;
-      long0++; // inc loop counter
-    }
-  ifboffset = long1>>10; // average = sum div by 1024
+//long1=0;
+//  while(long0<1025)
+//    {
+//      ADC1->SQR3=0x00000000; // current sense adc channel
+//      ADC1->CR2=0x00000001;  // start ADC conversion of bemf
+//      while((ADC1->SR & b1)==0) ; // wait for conversion to complete
+//      long1 = long1 + ADC1->DR;
+//      long0++; // inc loop counter
+//    }
+//  ifboffset = long1>>10; // average = sum div by 1024
 
   NVIC_InitTypeDef NVIC_InitStructure;
   // enable tim1 CC interrupt
@@ -199,6 +203,8 @@ int main(void)
   NVIC_Init(&NVIC_InitStructure);
 
   initMotorState ();
+
+  while (1);
 
 
   while (1) // main background loop
