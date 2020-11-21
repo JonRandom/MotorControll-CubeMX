@@ -22,6 +22,7 @@
 #include "motorState.h"
 #include "stm32f10x_lib.h"
 #include "trigger.h"
+#include <limits.h>
 
 state_t motorState;
 error_t stateError;		// wird gesetzt, wenn ein ungültiger MotorState auftritt
@@ -192,40 +193,66 @@ int zeroCrossDetected (int actual, int last)
 
 void changeAdcChannel (int phase)
 {
+  int adcChannel;
+
 	switch(phase)
 	{
 		case PHASE_0:		// ab
 		case PHASE_3: 		// ba
-			ADC1->SQR3 = 2; 	// read phase c
+			// ADC1->SQR3 = 2; 	// read phase c
+		  adcChannel = 2;
 			break;
 		case PHASE_1: 		// ac
 		case PHASE_4:  		// ca
-			ADC1->SQR3 = 1; 	// read phase b
+			// ADC1->SQR3 = 1; 	// read phase b
+		  adcChannel = 1;
 			break;
 		case PHASE_2:  		// bc
 		case PHASE_5:  		// cb
-			ADC1->SQR3 = 0; 	// read phase a
+			// ADC1->SQR3 = 0; 	// read phase a
+		  adcChannel = 0;
 			break;
 		default:
 			break;
 	}
+  ADC_RegularChannelConfig (ADC1, adcChannel, 1, ADC_SampleTime_1Cycles5);
 }
 
 
 int getEmfADCvalue (int phase)
 {
-  int adcValue;
-
+  #define ADC_VAL_ANZ 6
+  int i;
 
   triggerAdcOn();
   // ADC1->SR = 0;
   // ADC1->CR2		= 0x00000003;  		// start ADC conversion of back emf (bemf)
   // while ((ADC1->SR & b1) == 0) ; 	// wait for conversion to complete
-  adcValue	= ADC1->DR;
 
-  triggerAdcOff();
+  // adcValue	= ADC1->DR;
+  int sum = 0;
+//  int maxValue = INT_MIN;
+//  int minValue = INT_MAX;
+//  int adcValue;
+//
+//  for (i=0; i < ADC_VAL_ANZ; i++)
+//  {
+//  	while (ADC_GetFlagStatus (ADC1, ADC_FLAG_EOC) != SET);
+//  	adcValue = ADC_GetConversionValue(ADC1);
+//  	sum += adcValue;
+//  	if (adcValue > maxValue) maxValue = adcValue;
+//  	if (adcValue < minValue) minValue = adcValue;
+//  }
+//	triggerAdcOff();
+//
+//  sum -= minValue;
+//  sum -= maxValue;
 
-  return adcValue;
+	while (ADC_GetFlagStatus (ADC1, ADC_FLAG_EOC) != SET);
+	sum = ADC_GetConversionValue(ADC1);
+	triggerAdcOff();
+
+  return sum;
 }
 
 

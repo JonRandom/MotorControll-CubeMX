@@ -74,7 +74,18 @@ void PWMISR(void);
 void  motorstartinit(void);
 
 
-/*******************************************************************************
+ADC_InitTypeDef myAdcInitStruct =
+{
+    .ADC_Mode								= ADC_Mode_Independent,
+    .ADC_ScanConvMode				= DISABLE,
+    .ADC_ContinuousConvMode	= ENABLE,
+    .ADC_ExternalTrigConv		= ADC_ExternalTrigConv_T1_CC1, // ADC_ExternalTrigConv_None,
+    .ADC_DataAlign					= ADC_DataAlign_Right,
+    .ADC_NbrOfChannel				= 1
+};
+
+
+/******************************************** ***********************************
  * Function Name  : main
  * Description    : Main program
  * Input          : None
@@ -83,7 +94,7 @@ void  motorstartinit(void);
  *******************************************************************************/
 int main(void)
 {
-  unsigned long long0;
+  volatile unsigned long long0;
   // unsigned long long1;
   signed long slong0;
   signed long propterm;
@@ -138,7 +149,7 @@ int main(void)
   TIM1->CCR1= 0;
   TIM1->CCR2= 0;
   TIM1->CCR3= 0;
-  TIM1->CCR4= 300;  // 1150;		// 100;		// sk: neu, ISR Zeitpunkt in PWM-on Phase verschieben   alt: 1100;
+  TIM1->CCR4= 50;		// 100;		// sk: neu, ISR Zeitpunkt in PWM-on Phase verschieben   alt: 1100;
   TIM1->ARR=1200;
   TIM1->CR1=0x0001;
   // b12 to enable brk input
@@ -156,15 +167,26 @@ int main(void)
   // DAC->CR = b16+b0 ; // enable both DACs
 
   // ADC setup
-  ADC1->CR2	=	0x00000001;  		// ADDON = 1: turn ADC on
-  ADC_StartCalibration(ADC1);
-  while (ADC_GetCalibrationStatus(ADC1) );
-  ADC1->CR1		= 0x00; 				// neu Single conversion mode, old: 0x00000800;  // enable discontinuous regular conversion
-  ADC1->SMPR2 = 0xDB;					// Sampletime = 28,5 Zyklen -> 011 binär => 0 1101 1011 binär = 0DB hex
-  ADC1->CR2		= 0x00000000;  	// ADDON = 0, CONT = 0: turn ADC on in continuous mode
-  ADC1->CR2		= 0x00000002;  	// ADDON = 0, CONT = 1: turn ADC on in continuous mode
-  ADC1->CR2		= 0x00000003;  	// ADDON = 1, CONT = 1: turn ADC on in continuous mode
-  ADC1->CR2		= 0x00000003 + b22;
+//  ADC1->CR2	=	0x00000001;  		// ADDON = 1: turn ADC on
+//  ADC_StartCalibration(ADC1);
+//  while (ADC_GetCalibrationStatus(ADC1) );
+//  ADC1->CR1		= 0x00; 				// neu Single conversion mode, old: 0x00000800;  // enable discontinuous regular conversion
+//  ADC1->SMPR2 = 0xDB;					// Sampletime = 28,5 Zyklen -> 011 binär => 0 1101 1011 binär = 0DB hex
+//  ADC1->CR2		= 0x00000000;  	// ADDON = 0, CONT = 0: turn ADC on in continuous mode
+//  ADC1->CR2		= 0x00000002;  	// ADDON = 0, CONT = 1: turn ADC on in continuous mode
+//  ADC1->CR2		= 0x00000003;  	// ADDON = 1, CONT = 1: turn ADC on in continuous mode
+//  ADC1->CR2		= 0x00000003 + b22;
+
+
+  ADC_Init (ADC1, &myAdcInitStruct);
+  int adcChannel = 0;
+  ADC_RegularChannelConfig (ADC1, adcChannel, 1, ADC_SampleTime_1Cycles5);
+  ADC_ExternalTrigConvCmd (ADC1, DISABLE);
+
+  ADC_StartCalibration	 (ADC1);
+  while (ADC_GetResetCalibrationStatus(ADC1) != RESET);
+  ADC_SoftwareStartConvCmd (ADC1, ENABLE);
+  ADC_Cmd (ADC1, ENABLE);
 
   // initialization
   globalcounter=0;

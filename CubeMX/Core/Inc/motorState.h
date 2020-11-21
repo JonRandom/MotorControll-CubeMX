@@ -11,11 +11,11 @@
 #define STARTUP_PHASE_TIME				200		// zur Zeit 5ms
 #define START_STEP_ANZ						100		// Anzahl ISR Zyklen, die im state STATE_MOTOR_START verbracht werden
 #define RAMPUP_PHASE_TIME_ACC			999		// neueZeit =alteZeit * RAMPUP_PHASE_TIME_ACC / 1000
-#define RAMPUP_PHASE_TIME_END			17		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
+#define RAMPUP_PHASE_TIME_END			20 // 50		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
 
 #define PWM_INIT									100
-#define PWM_RAMPUP								200
-#define PWM_USER_DEFAULT					200
+#define PWM_RAMPUP								220
+#define PWM_USER_DEFAULT					220
 
 typedef int state_t;
 typedef int error_t;
