@@ -14,8 +14,8 @@
 #define RAMPUP_PHASE_TIME_END			20 // 50		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
 
 #define PWM_INIT									100
-#define PWM_RAMPUP								500 // 220
-#define PWM_USER_DEFAULT					500 // 220
+#define PWM_RAMPUP								700 // 220
+#define PWM_USER_DEFAULT					800 // 800 // 220
 
 typedef int state_t;
 typedef int error_t;

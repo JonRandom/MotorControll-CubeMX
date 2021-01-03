@@ -43,8 +43,8 @@ int lastBemfValue	= 0;
 int finding					= 0;
 
 int tresholdFinding = 2;
-int tresholdUp			= 1650;
-int tresholdDown 		= 1060;
+int tresholdUp			= PWM_USER_DEFAULT * (2024 * 3) / (1200 * 2); // 1650;
+int tresholdDown 		= PWM_USER_DEFAULT * (2024 * 3) / (1200 * 2); // 1300 - 0; // 1060;
 
 int foundStepNrUp;
 int foundStepNrDown;
