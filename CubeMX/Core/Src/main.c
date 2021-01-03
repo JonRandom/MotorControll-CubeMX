@@ -149,7 +149,7 @@ int main(void)
   TIM1->CCR1= 0;
   TIM1->CCR2= 0;
   TIM1->CCR3= 0;
-  TIM1->CCR4= 50;		// 100;		// sk: neu, ISR Zeitpunkt in PWM-on Phase verschieben   alt: 1100;
+  TIM1->CCR4= 40; // 2;		// 100;		// sk: neu, ISR Zeitpunkt in PWM-on Phase verschieben   alt: 1100;
   TIM1->ARR=1200;
   TIM1->CR1=0x0001;
   // b12 to enable brk input

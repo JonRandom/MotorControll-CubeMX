@@ -28,13 +28,26 @@ state_t motorState;
 error_t stateError;		// wird gesetzt, wenn ein ungültiger MotorState auftritt
 int stepCounter;		// wird von allen states benutzt
 int motorPhase;
+
+int phasenCounter;
+int bemfArrayUpdate;
+
 int rampupTime;
 int phaseTimeCounter;	// zählt, wie viele ISR Zyklen diese Phase schon eingeschaltet ist
 int actualPhaseTime;	// aktuelle Einschaltdauer einer Phase
 int pwmFromUser;		// dieser Wert steuert den Motor, 0 = Motor aus
 
-int zerocrossIdx;		// zählt die Aufrufe von processMotorZeroCross hoch, wird bei Phasenwechsel NULL gesetzt
+int zerocrossCounter;		// zählt die Aufrufe von processMotorZeroCross hoch, wird bei Phasenwechsel NULL gesetzt
 int lastBemfValue	= 0;
+
+int finding					= 0;
+
+int tresholdFinding = 2;
+int tresholdUp			= 1650;
+int tresholdDown 		= 1060;
+
+int foundStepNrUp;
+int foundStepNrDown;
 
 #define BEMF_ARRAY_SIZE	16
 
@@ -62,6 +75,8 @@ void initMotorState()
 	stateError				= 0;
 	stepCounter				= 0;
 	motorPhase 				= 0;
+	phasenCounter			= 0;
+	bemfArrayUpdate 	= 200;
 	phaseTimeCounter	= 0;
 	actualPhaseTime		= 0;
 	pwmFromUser				= PWM_USER_DEFAULT;	// todo
@@ -91,9 +106,14 @@ void switchToNextPhase ()
 	if (motorPhase > 5)
 	{
 		motorPhase = 0;
+		phasenCounter++;
+	}
+
+	if (motorPhase == 2)
+	{
 		triggerOn();
 	}
-	else if (motorPhase == 1)
+	else
 	{
 		triggerOff();
 	}
@@ -162,7 +182,7 @@ state_t processMotorRampUp()
 		if (rampupTime < RAMPUP_PHASE_TIME_END)
 		{
 			myNextState 	= STATE_MOTOR_ZEROCROSS;
-			zerocrossIdx	= 0;
+			zerocrossCounter	= 0;
 		}
 	}
 
@@ -200,19 +220,24 @@ void changeAdcChannel (int phase)
 		case PHASE_0:		// ab
 		case PHASE_3: 		// ba
 			// ADC1->SQR3 = 2; 	// read phase c
-		  adcChannel = 2;
+		  adcChannel = 6; // 2;
 			break;
+
 		case PHASE_1: 		// ac
 		case PHASE_4:  		// ca
 			// ADC1->SQR3 = 1; 	// read phase b
 		  adcChannel = 1;
 			break;
+
 		case PHASE_2:  		// bc
 		case PHASE_5:  		// cb
 			// ADC1->SQR3 = 0; 	// read phase a
-		  adcChannel = 0;
+		  adcChannel = 2; // 6; // 0; todo: Umbau auf Platine weil Aanalogpin 0 defekt ist
 			break;
+
 		default:
+			// while(1);
+		  adcChannel = 0;
 			break;
 	}
   ADC_RegularChannelConfig (ADC1, adcChannel, 1, ADC_SampleTime_1Cycles5);
@@ -222,7 +247,6 @@ void changeAdcChannel (int phase)
 int getEmfADCvalue (int phase)
 {
   #define ADC_VAL_ANZ 6
-  int i;
 
   triggerAdcOn();
   // ADC1->SR = 0;
@@ -256,19 +280,32 @@ int getEmfADCvalue (int phase)
 }
 
 
-void copyBemfArray(int size, int phase)
+//void copyBemfArray(int size, int phase)
+//{
+//	if ((phasenCounter % bemfArrayUpdate) ==0)
+//	{
+//		int i;
+//		for (i = 0; i < BEMF_ARRAY_SIZE; i++)
+//		{
+//			if (i < size)
+//			{
+//				bemfArray[phase][i] = bemfTempArray[i];
+//			}
+//			else
+//			{
+//				bemfArray[phase][i] = -9999;	// mark entry as unused
+//			}
+//		}
+//	}
+//}
+
+
+void putAdcIntoArray(int counter, int motorPhase, int adcValue)
 {
-	int i;
-	for (i = 0; i < BEMF_ARRAY_SIZE; i++)
+	if (counter < BEMF_ARRAY_SIZE)
 	{
-		if (i < size)
-		{
-			bemfArray[phase][i] = bemfTempArray[i];
-		}
-		else
-		{
-			bemfArray[phase][i] = -9999;	// mark entry as unused
-		}
+  	bemfArray[motorPhase][counter] 	= adcValue;
+  	bemfArray[motorPhase][0] 				= counter;
 	}
 }
 
@@ -276,33 +313,71 @@ void copyBemfArray(int size, int phase)
 state_t processMotorZeroCross()
 {
 	int bemfValue;
+	int *foundStepNrPtr = &foundStepNrDown;
+
 	state_t myNextState = 0;
 
 	bemfValue 	= getEmfADCvalue(motorPhase);	// get adc value
 	// bemfValue 	= zerocrossIdx * 100 + (motorPhase+1) * 100000;	// test values for array debug
+  putAdcIntoArray(zerocrossCounter, motorPhase, bemfValue);
+  zerocrossCounter++;
 
 	setPWM (pwmFromUser);
 
-	if (zerocrossIdx < BEMF_ARRAY_SIZE)			// store analog data in array for debug purposes
+//	if (zerocrossCounter < BEMF_ARRAY_SIZE)			// store analog data in array for debug purposes
+//	{
+//	  bemfTempArray[zerocrossCounter] = bemfValue;
+//	  zerocrossCounter++;
+//	  bemfTempArray[0] = zerocrossCounter;
+//	}
+
+	switch (motorPhase)
 	{
-	  bemfTempArray[zerocrossIdx] = bemfValue;
-	  zerocrossIdx++;
-	  bemfTempArray[0] = zerocrossIdx;
+		case 0:
+		case 2:
+		case 4:		// ADC value is going down:
+		  if (bemfValue < tresholdDown)
+		  {
+		  	finding++;
+		  	// foundStepNrPtr = &foundStepNrUp; // already done in function init
+		  }
+		break;
+
+		case 1:
+		case 3:
+		case 5:		// ADC value is going up:
+			if (bemfValue > tresholdUp)
+			{
+				finding++;
+				foundStepNrPtr = &foundStepNrUp;
+			}
+		break;
+
+		default:
+		break;
 	}
 
-	if (++phaseTimeCounter > rampupTime)
+	if (finding >= tresholdFinding)
 	{
+		finding = 0;
+		*foundStepNrPtr 	= zerocrossCounter;
 		actualPhaseTime 	= phaseTimeCounter;
 		phaseTimeCounter 	= 0;
 
-//	if (zeroCrossDetected (bemfValue, lastBemfValue))
-//	{
-		copyBemfArray (zerocrossIdx, motorPhase);
 		switchToNextPhase ();
-		zerocrossIdx 		= 1;
-		bemfTempArray[1] 	= zerocrossIdx;
-		// actualSpeed 		= speedCounter;
+		zerocrossCounter 		= 1;
+		bemfTempArray[0] 	= zerocrossCounter;
 	}
+
+//	if (++phaseTimeCounter > rampupTime)
+//	{
+//		actualPhaseTime 	= phaseTimeCounter;
+//		phaseTimeCounter 	= 0;
+//
+//		switchToNextPhase ();
+//		zerocrossCounter 		= 1;
+//		bemfTempArray[0] 	= zerocrossCounter;
+//	}
 
 	if (pwmFromUser == 0)
 	{

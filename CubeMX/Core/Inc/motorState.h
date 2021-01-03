@@ -14,8 +14,8 @@
 #define RAMPUP_PHASE_TIME_END			20 // 50		// ab dieser Zeit (Anzahl in ISR-Zyklen) wird auf Zerocross Betrieb umgeschaltet
 
 #define PWM_INIT									100
-#define PWM_RAMPUP								220
-#define PWM_USER_DEFAULT					220
+#define PWM_RAMPUP								500 // 220
+#define PWM_USER_DEFAULT					500 // 220
 
 typedef int state_t;
 typedef int error_t;
@@ -99,13 +99,33 @@ void changeAdcChannel (int phase);
 //#define phcb         b3 +              b8 +     b11    + b12+b13
 //#define alloff       b3 +         b7 +          b11    + b12+b13
 
-// Phasen Definitionen:
-#define phab b0 +                  b7                     + b12+b13
-#define phac b0 +                                  b11    + b12+b13
-#define phbc                 b4 +                  b11    + b12+b13
-#define phba         b3  +   b4                           + b12+b13
-#define phca         b3  +                b8              + b12+b13
-#define phcb                       b7 +   b8              + b12+b13
+#define INVERT_NEGATIVE_GATE_DRIVER
 
-// ??? #define alloff       b3 +          b7 +            b11    + b12+b13
+#ifdef INVERT_NEGATIVE_GATE_DRIVER
+
+// Phasen Definitionen für invertierenden Gate Treiber:
+#define phab b0 + b2 + b3 +                              b11 +    b12+b13
+#define phac b0 + b2 + b3 +             b7 +                      b12+b13
+
+#define phbc           b3 +   b4 + b6 + b7 +                      b12+b13
+#define phba                  b4 + b6 + b7 +             b11 +    b12+b13
+
+#define phca                            b7 +  b8 + b10 + b11 +    b12+b13
+#define phcb           b3 +                   b8 + b10 + b11 +    b12+b13
+
+#define alloff         b3 +             b7 +             b11 +    b12+b13
+
+#else
+
+// Phasen Definitionen für nicht invertierenden Gate Treiber:
+#define phab b0 + b2 +                  b7 +                      b12+b13
+#define phac b0 + b2 +                                   b11 +    b12+b13
+#define phbc                  b4 + b6 +                  b11 +    b12+b13
+#define phba           b3 +   b4 + b6 +                           b12+b13
+#define phca           b3 +                   b8 + b10 +          b12+b13
+#define phcb                            b7 +  b8 + b10 +          b12+b13
+
 #define alloff      0
+
+#endif
+
